@@ -1,8 +1,9 @@
 #!/bin/bash
 # install.sh — 将 AI Agent Skills 配置安装到目标项目
-# 用法：./install.sh [目标项目路径]
+# 用法：./install.sh [-f|--force] [目标项目路径]
 # 示例：./install.sh ~/my-project
 #       ./install.sh .   （安装到当前目录）
+#       ./install.sh -f ~/my-project  （强制覆盖，不提示）
 #
 # 安装内容：
 #   - .agent/skills/   精选 SKILL.md 文件（从 github-source/ 摘取，相对路径引用）
@@ -15,12 +16,26 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SOURCE_DIR="$SCRIPT_DIR/github-source"
+
+# ── 解析选项 ─────────────────────────────────────────────
+FORCE=false
+OVERWRITE_ALL=false
+SKIP_ALL=false
+
+while [[ "${1:-}" == -* ]]; do
+    case "$1" in
+        -f|--force) FORCE=true; shift ;;
+        *) echo "未知选项：$1"; exit 1 ;;
+    esac
+done
+
 TARGET="${1:-}"
 
 # ── 参数检查 ────────────────────────────────────────────
 if [ -z "$TARGET" ]; then
-    echo "用法：$0 <目标项目路径>"
+    echo "用法：$0 [-f|--force] <目标项目路径>"
     echo "示例：$0 ~/my-project"
+    echo "  -f, --force  强制覆盖所有已存在的文件，不提示"
     exit 1
 fi
 
@@ -30,6 +45,85 @@ if [ ! -d "$TARGET" ]; then
 fi
 
 TARGET="$(cd "$TARGET" && pwd)"  # 转为绝对路径
+
+# ── 安全复制工具函数 ─────────────────────────────────────
+
+# 安全复制单文件：如果目标已存在且内容不同，提示用户选择
+safe_cp() {
+    local src="$1"
+    local dst="$2"
+    local label="${3:-$dst}"
+
+    if [ ! -f "$dst" ]; then
+        mkdir -p "$(dirname "$dst")"
+        cp "$src" "$dst"
+        return 0
+    fi
+
+    # 文件已存在，检查内容是否相同
+    if diff -q "$src" "$dst" > /dev/null 2>&1; then
+        return 0  # 内容相同，静默跳过
+    fi
+
+    # 内容不同，需要用户决定
+    if $FORCE || $OVERWRITE_ALL; then
+        cp "$src" "$dst"
+        return 0
+    fi
+
+    if $SKIP_ALL; then
+        echo "      ⏭️  跳过（内容不同）：$label"
+        return 0
+    fi
+
+    echo ""
+    echo "   ⚠️  文件已存在且内容不同：$label"
+    while true; do
+        read -rp "      覆盖？[y]是 / [n]否 / [d]查看差异 / [a]全部覆盖 / [s]全部跳过: " choice
+        case "$choice" in
+            y|Y)
+                cp "$src" "$dst"
+                echo "      ✅ 已覆盖"
+                return 0
+                ;;
+            n|N)
+                echo "      ⏭️  已跳过"
+                return 0
+                ;;
+            d|D)
+                echo "      ── 差异对比 (现有 ← → 新版) ──"
+                diff --color=auto "$dst" "$src" || true
+                echo "      ── 差异对比结束 ──"
+                ;;
+            a|A)
+                OVERWRITE_ALL=true
+                cp "$src" "$dst"
+                echo "      ✅ 已覆盖（后续冲突文件将全部覆盖）"
+                return 0
+                ;;
+            s|S)
+                SKIP_ALL=true
+                echo "      ⏭️  已跳过（后续冲突文件将全部跳过）"
+                return 0
+                ;;
+            *)
+                echo "      请输入 y / n / d / a / s"
+                ;;
+        esac
+    done
+}
+
+# 安全复制目录中所有文件（使用 process substitution 避免子 shell 变量丢失）
+safe_cp_dir() {
+    local src_dir="$1"
+    local dst_dir="$2"
+    local label_prefix="${3:-$dst_dir}"
+    mkdir -p "$dst_dir"
+    while IFS= read -r -d '' src_file; do
+        local rel="${src_file#$src_dir/}"
+        safe_cp "$src_file" "$dst_dir/$rel" "$label_prefix/$rel"
+    done < <(find "$src_dir" -type f -print0 | sort -z)
+}
 
 # ── 自动拉取上游源码（如果 github-source/ 不存在）──────
 if [ ! -d "$SOURCE_DIR" ]; then
@@ -41,6 +135,9 @@ fi
 echo "🚀 安装 AI Agent Skills 配置"
 echo "   来源：$SCRIPT_DIR"
 echo "   目标：$TARGET"
+if $FORCE; then
+    echo "   模式：强制覆盖（--force）"
+fi
 echo ""
 
 # ── 精选 Skills 列表 ─────────────────────────────────────
@@ -96,16 +193,15 @@ for NAME in "${!SKILLS[@]}"; do
     fi
 
     mkdir -p "$(dirname "$DST")"
-    cp "$SRC" "$DST"
+    safe_cp "$SRC" "$DST" ".agent/skills/$NAME/SKILL.md"
     (( INSTALLED++ )) || true
 done
-echo "   ✅ 安装 $INSTALLED 个 Skills（跳过 $SKIPPED 个）"
+echo "   ✅ 处理 $INSTALLED 个 Skills（跳过 $SKIPPED 个源缺失）"
 echo ""
 
 # ── 复制 .agent/workflows/ ──────────────────────────────
 echo "📁 复制 .agent/workflows/ ..."
-mkdir -p "$TARGET/.agent/workflows"
-cp -r "$SCRIPT_DIR/.agent/workflows/." "$TARGET/.agent/workflows/"
+safe_cp_dir "$SCRIPT_DIR/.agent/workflows" "$TARGET/.agent/workflows" ".agent/workflows"
 echo "   ✅ 完成"
 echo ""
 
@@ -118,23 +214,28 @@ if [ -x "$SCRIPT_DIR/.agent/builder/build.sh" ]; then
 fi
 
 echo "📁 复制各大平台专属配置及拦截规则 ..."
-mkdir -p "$TARGET/.cursor/rules"
-cp -r "$SCRIPT_DIR/.cursor/rules/." "$TARGET/.cursor/rules/"
+
+# Cursor 拦截规则
+safe_cp_dir "$SCRIPT_DIR/.cursor/rules" "$TARGET/.cursor/rules" ".cursor/rules"
+
 # Codex 全局 Slash Commands (Codex 仅识别全局 Prompts)
 CODEX_GLOBAL_PROMPTS="${CODEX_HOME:-$HOME/.codex}/prompts"
-mkdir -p "$CODEX_GLOBAL_PROMPTS"
-cp -r "$SCRIPT_DIR/.agent/workflows/." "$CODEX_GLOBAL_PROMPTS/"
+safe_cp_dir "$SCRIPT_DIR/.agent/workflows" "$CODEX_GLOBAL_PROMPTS" "\$HOME/.codex/prompts"
 
 # Codex 项目级拦截配置
-mkdir -p "$TARGET/.codex"
-cp -r "$SCRIPT_DIR/.codex/." "$TARGET/.codex/"
-mkdir -p "$TARGET/.claude/commands"
-cp -r "$SCRIPT_DIR/.agent/workflows/." "$TARGET/.claude/commands/"
-mkdir -p "$TARGET/.opencode"
-cp -r "$SCRIPT_DIR/.opencode/." "$TARGET/.opencode/"
-cp "$SCRIPT_DIR/.agent/AGENTS.cursor.md" "$TARGET/.agent/"
-cp "$SCRIPT_DIR/.agent/AGENTS.codex.md" "$TARGET/.agent/"
-cp "$SCRIPT_DIR/.agent/AGENTS.opencode.md" "$TARGET/.agent/"
+safe_cp_dir "$SCRIPT_DIR/.codex" "$TARGET/.codex" ".codex"
+
+# Claude commands
+safe_cp_dir "$SCRIPT_DIR/.agent/workflows" "$TARGET/.claude/commands" ".claude/commands"
+
+# OpenCode 拦截配置
+safe_cp_dir "$SCRIPT_DIR/.opencode" "$TARGET/.opencode" ".opencode"
+
+# 各平台专属高级配置
+safe_cp "$SCRIPT_DIR/.agent/AGENTS.cursor.md" "$TARGET/.agent/AGENTS.cursor.md" ".agent/AGENTS.cursor.md"
+safe_cp "$SCRIPT_DIR/.agent/AGENTS.codex.md" "$TARGET/.agent/AGENTS.codex.md" ".agent/AGENTS.codex.md"
+safe_cp "$SCRIPT_DIR/.agent/AGENTS.opencode.md" "$TARGET/.agent/AGENTS.opencode.md" ".agent/AGENTS.opencode.md"
+
 echo "   ✅ 完成"
 echo ""
 

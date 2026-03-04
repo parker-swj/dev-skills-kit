@@ -45,7 +45,13 @@ git clone https://github.com/parker-swj/dev-skills-kit.git ~/dev-skills-kit
 
 ```bash
 ~/dev-skills-kit/install.sh /path/to/your-project
+
+# 如需强制覆盖所有已存在文件（不提示），使用 --force：
+~/dev-skills-kit/install.sh -f /path/to/your-project
 ```
+
+> **交互式安全机制**：如果目标项目中已存在同名文件且内容不同，脚本会暂停并询问你是否覆盖。
+> 你可以选择：`[y]`覆盖 / `[n]`跳过 / `[d]`查看差异 / `[a]`全部覆盖 / `[s]`全部跳过。
 
 脚本会自动提供涵盖 **Antigravity / Cursor / Codex / OpenCode** 的四端完美物理兼容配置，执行内容包括：
 - 将精选的 SKILL.md 文件复制到 `.agent/skills/`
@@ -60,7 +66,7 @@ git clone https://github.com/parker-swj/dev-skills-kit.git ~/dev-skills-kit
 
 安装完成。所有技术栈 Skills（Python · Go · TypeScript/React · Java/Spring Boot · API · Docker · 安全等）均已启用，AI 会按照任务场景按需读取对应 SKILL.md，无需手动配置。
 
-### 4. 搭配使用 OpenSpec（大型任务规范归档）
+### 4. 搭配使用 OpenSpec（任务规范归档）
 
 OpenSpec 是一个独立的 CLI 工具。**当使用 `install.sh` 时，脚本会自动尝试为你全局安装 `@fission-ai/openspec` 并在目标项目执行 `openspec init`。**
 
@@ -72,8 +78,8 @@ cd /path/to/your-project
 openspec init
 ```
 
-> **何时需要**：只在 `large` 级别任务（涉及核心模块、预计 > 1 天）且团队需要规范文档时才使用。  
-> **如何触发**：只要检测到项目根目录存在 `openspec/` 文件夹，AI Agent 就会自动走大型任务规范归档分支。
+> **何时需要**：`medium` 及以上级别任务（涉及 3+ 文件、预计 1 小时以上）推荐使用。  
+> **如何触发**：只要检测到项目根目录存在 `openspec/` 文件夹，AI Agent 就会自动走 OpenSpec 规范归档分支。
 
 ---
 
