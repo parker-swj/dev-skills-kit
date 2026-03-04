@@ -85,9 +85,15 @@
 ##### 阶段 1：设计 & 归档
 
 ```
+Step 0. 立即创建 progress.md         → 记录「阶段: brainstorming, 状态: 进行中」
+                                        **要求**：强制在文件中记录当前或历史报错及调研结果
+                                        （防止网络中断后新会话丢失阶段上下文）
+
 Step 1. brainstorming               → 苏格拉底式探索，对齐目标和方案
+                                        每轮对话后将结论追加到 progress.md
 
 Step 2. 固化设计（执行上方 OpenSpec 检测后二选一）：
+         ⚠️ 转换前更新 progress.md：「阶段: openspec/writing-plans, 状态: 进行中」
 
   Path A — openspec/ 目录存在：
     /opsx:new <change-name>-<YYYYMMDDHHMM>   → 建变更目录
@@ -107,6 +113,7 @@ Step 3. using-git-worktrees（可选） → 隔离工作区
 ##### 阶段 2：执行
 
 ```
+  ⚠️ 进入执行前更新 progress.md：「阶段: executing, 状态: 进行中」
   ├─ executing-plans                  → 按 tasks.md / task_plan.md 分批执行
   ├─ planning-with-files              → 跨天防失忆（3 文件）
   ├─ test-driven-development          → 严格执行 RED-GREEN-REFACTOR
