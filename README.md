@@ -265,7 +265,7 @@ your-project/
 | database-migrations | 数据库迁移 |
 | docker-patterns / deployment-patterns | 容器化部署 |
 | e2e-testing | 端到端测试 |
-| security-review / security-scan | 安全审查 |
+| security-guidance | 安全编码指导与审查 |
 | backend-patterns | 后端通用模式 |
 | continuous-learning-v2 | 上游持续学习（参考） |
 

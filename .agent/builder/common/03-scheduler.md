@@ -48,6 +48,7 @@
   ├─ finishing-a-development-branch   → view_file 读取 SKILL.md
   ├─ systematic-debugging             → 随时待命
   ├─ verification-before-completion   → 强制验证
+  ├─ security-guidance                → 编写/审查代码时执行安全检查
   └─ 技术栈 patterns + auto-learning（见 3.3 节）
 
 跳过：using-git-worktrees（可选）、OpenSpec
@@ -97,7 +98,8 @@ Step 3. using-git-worktrees（可选） → 隔离工作区
   ├─ executing-plans                  → 按 tasks.md / task_plan.md 分批执行
   ├─ planning-with-files              → 跨天防失忆（3 文件）
   ├─ test-driven-development          → 严格执行 RED-GREEN-REFACTOR
-  └─ 全部技术栈 patterns + security-review
+  ├─ security-guidance                → 全程安全检查
+  └─ 全部技术栈 patterns
 ```
 
 ##### 阶段 3：验收归档

@@ -165,8 +165,7 @@
 | docker-patterns     | `.agent/skills/docker-patterns/SKILL.md`     |
 | deployment-patterns | `.agent/skills/deployment-patterns/SKILL.md` |
 | e2e-testing         | `.agent/skills/e2e-testing/SKILL.md`         |
-| security-review     | `.agent/skills/security-review/SKILL.md`     |
-| security-scan       | `.agent/skills/security-scan/SKILL.md`       |
+| security-guidance   | `.agent/skills/security-guidance/SKILL.md`   |
 | backend-patterns    | `.agent/skills/backend-patterns/SKILL.md`    |
 
 ---
@@ -220,6 +219,7 @@
   ├─ finishing-a-development-branch   → view_file 读取 SKILL.md
   ├─ systematic-debugging             → 随时待命
   ├─ verification-before-completion   → 强制验证
+  ├─ security-guidance                → 编写/审查代码时执行安全检查
   └─ 技术栈 patterns + auto-learning（见 3.3 节）
 
 跳过：using-git-worktrees（可选）、OpenSpec
@@ -269,7 +269,8 @@ Step 3. using-git-worktrees（可选） → 隔离工作区
   ├─ executing-plans                  → 按 tasks.md / task_plan.md 分批执行
   ├─ planning-with-files              → 跨天防失忆（3 文件）
   ├─ test-driven-development          → 严格执行 RED-GREEN-REFACTOR
-  └─ 全部技术栈 patterns + security-review
+  ├─ security-guidance                → 全程安全检查
+  └─ 全部技术栈 patterns
 ```
 
 ##### 阶段 3：验收归档
@@ -430,7 +431,8 @@ Superpowers 原版通过 `Task` tool 调度独立的 reviewer 子代理。
   □ 代码清洁度：无 dead code、无注释掉的代码
   □ 测试质量：测试一个行为、命名清晰、用真实代码
   □ 架构：符合 SOLID、关注点分离
-  □ 安全：无明显漏洞（硬编码密钥、SQL 注入等）
+  □ 安全：按 security-guidance SKILL.md 的检查清单逐项审查
+    （view_file 读取 `.agent/skills/security-guidance/SKILL.md` 中的「安全审查 Checklist」）
 ```
 
 > **审查结果分级处理：**

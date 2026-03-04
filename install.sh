@@ -173,8 +173,6 @@ declare -A SKILLS=(
     ["docker-patterns"]="everything-claude-code/skills/docker-patterns"
     ["deployment-patterns"]="everything-claude-code/skills/deployment-patterns"
     ["e2e-testing"]="everything-claude-code/skills/e2e-testing"
-    ["security-review"]="everything-claude-code/skills/security-review"
-    ["security-scan"]="everything-claude-code/skills/security-scan"
     ["backend-patterns"]="everything-claude-code/skills/backend-patterns"
     # Anthropic 官方 Claude Code Plugins
     ["frontend-design"]="claude-code/plugins/frontend-design/skills/frontend-design"

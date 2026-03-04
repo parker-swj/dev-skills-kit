@@ -77,8 +77,7 @@
 | docker-patterns     | `.agent/skills/docker-patterns/SKILL.md`     |
 | deployment-patterns | `.agent/skills/deployment-patterns/SKILL.md` |
 | e2e-testing         | `.agent/skills/e2e-testing/SKILL.md`         |
-| security-review     | `.agent/skills/security-review/SKILL.md`     |
-| security-scan       | `.agent/skills/security-scan/SKILL.md`       |
+| security-guidance   | `.agent/skills/security-guidance/SKILL.md`   |
 | backend-patterns    | `.agent/skills/backend-patterns/SKILL.md`    |
 
 ---
