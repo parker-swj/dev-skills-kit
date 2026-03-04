@@ -176,6 +176,8 @@ declare -A SKILLS=(
     ["security-review"]="everything-claude-code/skills/security-review"
     ["security-scan"]="everything-claude-code/skills/security-scan"
     ["backend-patterns"]="everything-claude-code/skills/backend-patterns"
+    # Anthropic 官方 Claude Code Plugins
+    ["frontend-design"]="claude-code/plugins/frontend-design/skills/frontend-design"
 )
 
 # ── 复制精选 SKILL.md 到 .agent/skills/ ─────────────────
@@ -197,6 +199,27 @@ for NAME in "${!SKILLS[@]}"; do
     (( INSTALLED++ )) || true
 done
 echo "   ✅ 处理 $INSTALLED 个 Skills（跳过 $SKIPPED 个源缺失）"
+echo ""
+
+# ── 复制本地维护的 Skills ────────────────────────────────
+# 这些 Skills 不来自 github-source/，而是本项目自行维护的
+# （原创、改编自上游无原生 SKILL.md 的插件、或来自其他格式的上游）
+echo "📦 复制本地维护的 Skills..."
+LOCAL_SKILLS_DIR="$SCRIPT_DIR/.agent/skills"
+LOCAL_INSTALLED=0
+if [ -d "$LOCAL_SKILLS_DIR" ]; then
+    for SKILL_DIR in "$LOCAL_SKILLS_DIR"/*/; do
+        [ -d "$SKILL_DIR" ] || continue
+        SKILL_NAME="$(basename "$SKILL_DIR")"
+        if [ -f "$SKILL_DIR/SKILL.md" ]; then
+            DST="$TARGET/.agent/skills/$SKILL_NAME/SKILL.md"
+            mkdir -p "$(dirname "$DST")"
+            safe_cp "$SKILL_DIR/SKILL.md" "$DST" ".agent/skills/$SKILL_NAME/SKILL.md"
+            (( LOCAL_INSTALLED++ )) || true
+        fi
+    done
+fi
+echo "   ✅ 处理 $LOCAL_INSTALLED 个本地 Skills"
 echo ""
 
 # ── 复制 .agent/workflows/ ──────────────────────────────

@@ -169,6 +169,19 @@
 | security-scan       | `.agent/skills/security-scan/SKILL.md`       |
 | backend-patterns    | `.agent/skills/backend-patterns/SKILL.md`    |
 
+### 3.5 Anthropic 官方 Skills
+
+> 来源：[Anthropic Claude Code Plugins](https://github.com/anthropics/claude-code/tree/main/plugins)，已改编为跨平台 SKILL.md 格式。
+
+| Skill | view_file 路径 | 简述 |
+|-------|---------------|------|
+| frontend-design   | `.agent/skills/frontend-design/SKILL.md`   | 高质量前端设计，避免 AI 泛化美学 |
+| security-guidance | `.agent/skills/security-guidance/SKILL.md` | 安全编码指导，检测常见漏洞模式 |
+
+**激活规则：**
+- **frontend-design**：当任务涉及前端组件、页面、应用的创建或设计时自动激活
+- **security-guidance**：当编写或审查代码时自动检查安全模式（命令注入、XSS、反序列化等）
+
 ---
 ## 4. 场景分级调度器
 

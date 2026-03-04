@@ -12,6 +12,7 @@ declare -A REPOS=(
     ["everything-claude-code"]="https://github.com/affaan-m/everything-claude-code"
     ["planning-with-files"]="https://github.com/OthmanAdi/planning-with-files"
     ["OpenSpec"]="https://github.com/Fission-AI/OpenSpec"
+    ["claude-code"]="https://github.com/anthropics/claude-code"
 )
 
 echo "🔄 开始更新 Skills 上游源码..."
@@ -36,13 +37,33 @@ for NAME in "${!REPOS[@]}"; do
     rm -rf "$DIR/.git"
 
     # 清理上游仓库中 install.sh 不需要的大文件目录
-    # 只保留 skills/ 等核心内容，减少体积
-    for JUNK in "$DIR/assets" "$DIR/docs" "$DIR/tests" "$DIR/plugins" "$DIR/examples"; do
-        if [ -d "$JUNK" ]; then
-            rm -rf "$JUNK"
-            echo "   🗑️  已清理 $(basename "$JUNK")/"
+    if [ "$NAME" = "claude-code" ]; then
+        # claude-code 仓库很大，只保留 plugins/ 中需要的 skills
+        # 保留: plugins/frontend-design/skills/
+        # 其余全部删除
+        echo "   🧹 claude-code: 只保留 plugins/ 中的 skills..."
+        # 先把有用的目录移到临时位置
+        TMP_KEEP="$(mktemp -d)"
+        if [ -d "$DIR/plugins/frontend-design/skills" ]; then
+            mkdir -p "$TMP_KEEP/plugins/frontend-design"
+            mv "$DIR/plugins/frontend-design/skills" "$TMP_KEEP/plugins/frontend-design/skills"
         fi
-    done
+        # 删除 clone 下来的所有内容
+        find "$DIR" -mindepth 1 -maxdepth 1 -not -name '.git' -exec rm -rf {} +
+        # 把有用的目录移回来
+        if [ -d "$TMP_KEEP/plugins" ]; then
+            mv "$TMP_KEEP/plugins" "$DIR/plugins"
+        fi
+        rm -rf "$TMP_KEEP"
+    else
+        # 其他仓库：只删除无用的大目录，保留 skills/ 等核心内容
+        for JUNK in "$DIR/assets" "$DIR/docs" "$DIR/tests" "$DIR/plugins" "$DIR/examples"; do
+            if [ -d "$JUNK" ]; then
+                rm -rf "$JUNK"
+                echo "   🗑️  已清理 $(basename "$JUNK")/"
+            fi
+        done
+    fi
 
     echo "   ✅ 完成"
     echo ""

@@ -269,12 +269,20 @@ your-project/
 | backend-patterns | 后端通用模式 |
 | continuous-learning-v2 | 上游持续学习（参考） |
 
+### Anthropic 官方 Skills（来源：[claude-code/plugins](https://github.com/anthropics/claude-code/tree/main/plugins)）
+
+| Skill | 用途 | 安装方式 |
+|-------|------|----------|
+| frontend-design | 高质量前端设计，避免 AI 泛化美学（独特排版、配色、动效指导） | 上游 clone（`update-sources.sh`） |
+| security-guidance | 安全编码指导，检测命令注入、XSS、反序列化等常见漏洞模式 | 本地维护（上游无 SKILL.md） |
+
 ### 本地 Skills
 
 | Skill | 用途 |
 |-------|------|
 | planning-with-files | 3 文件状态持久化（来源：[planning-with-files](https://github.com/OthmanAdi/planning-with-files)） |
 | auto-learning | 零 Hooks 经验沉淀（替代 continuous-learning-v2） |
+| security-guidance | 改编自 Anthropic 安全插件（原版为 Python Hook，无 SKILL.md） |
 
 ### 外部工具
 
@@ -303,7 +311,8 @@ dev-skills-kit/
 │   ├── AGENTS.opencode.md               ← build.sh 生成
 │   ├── skills/                          ← 本地维护的 Skills
 │   │   ├── auto-learning/SKILL.md
-│   │   └── planning-with-files/SKILL.md
+│   │   ├── planning-with-files/SKILL.md
+│   │   └── security-guidance/SKILL.md   ← 改编自 Anthropic Hook 插件
 │   └── workflows/                       ← 工作流（/go、/learn、/save-to-kb）
 ├── .cursor/rules/                       ← Cursor 拦截入口（模板）
 ├── .codex/                              ← Codex 拦截入口（模板）
@@ -312,6 +321,7 @@ dev-skills-kit/
 └── github-source/                       ← 上游全量源码（.gitignore 已排除）
     ├── superpowers/
     ├── everything-claude-code/
+    ├── claude-code/                     ← Anthropic 官方（仅保留 plugins/skills/）
     ├── planning-with-files/
     └── OpenSpec/
 ```
@@ -347,5 +357,6 @@ cd ~/dev-skills-kit
 |------|------|----------|
 | superpowers | https://github.com/obra/superpowers | SKILL.md 方法论，由 `install.sh` 安装 |
 | everything-claude-code | https://github.com/affaan-m/everything-claude-code | SKILL.md 技术栈规范，由 `install.sh` 安装 |
+| claude-code/plugins | https://github.com/anthropics/claude-code/tree/main/plugins | Anthropic 官方 Skills（frontend-design、security-guidance），改编为 SKILL.md |
 | planning-with-files | https://github.com/OthmanAdi/planning-with-files | SKILL.md 状态持久化，由 `install.sh` 安装 |
 | OpenSpec | https://github.com/Fission-AI/OpenSpec | CLI 工具，由 `install.sh` 自动安装 |
