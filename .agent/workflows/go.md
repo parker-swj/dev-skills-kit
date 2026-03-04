@@ -15,40 +15,38 @@ $ARGUMENTS
 
 1. 使用 `view_file` 完整读取项目根目录的 `AGENTS.md`
 
-2. **阶段感知恢复 — 检测当前任务的执行进度**（此步骤不可跳过）：
+2. **阶段感知恢复 — 以 `progress.md` 为唯一状态来源**（此步骤不可跳过）：
 
-   依次检查以下文件是否存在，推断当前所处阶段：
+<EXTREMELY-IMPORTANT>
+**`progress.md` 是阶段状态的唯一权威来源。**
 
-   ```
-   检查优先级（从高到低）：
-   
-   a. progress.md 存在？
-      → 读取 progress.md，查看最后记录的阶段和状态
-      → 如果记录了 "阶段: brainstorming" 且状态为 "进行中"
-        → 恢复到 brainstorming，从上次结论继续
-      → 如果记录了 "阶段: openspec" 且状态为 "进行中"
-        → 恢复到 openspec，继续未完成的文档
-   
-   b. task_plan.md 存在？
-      → 读取 task_plan.md，检查哪些任务已完成、哪些待做
-      → 从第一个未完成的任务继续
-   
-   c. openspec/ 目录存在？
-      → 检查是否有进行中的变更目录（非 archive/ 下的目录）
-      → 如有进行中变更，检查其中的文档完成度：
-         - 只有 proposal → 恢复到 specs 生成
-         - 有 specs 无 design → 恢复到 design 生成
-         - 有 design 无 tasks → 恢复到 tasks 生成
-         - tasks 存在 → 进入 executing-plans
-      → 如无进行中变更，按正常流程走
-   
-   d. findings.md 存在？
-      → 读取 findings.md，了解已有的研究发现
-      → 结合发现判断当前阶段
-   
-   e. 以上文件均不存在？
-      → 当前无进行中的任务，等待用户指令
-   ```
+```
+检查 progress.md 是否存在？
+
+  ✅ 存在：
+     → 读取 progress.md 中的「当前阶段」节
+     → 找到「阶段:」和「状态:」字段，这就是当前恢复点
+     → 直接恢复到该阶段，不再检查其他任何文件
+     
+     阶段恢复映射：
+       阶段: brainstorming  | 状态: 进行中  → 恢复 brainstorming，继续讨论
+       阶段: openspec       | 状态: 进行中  → 恢复 openspec，继续文档链生成
+       阶段: writing-plans  | 状态: 进行中  → 恢复 writing-plans，继续任务规划
+       阶段: executing      | 状态: 进行中  → 恢复 executing，继续代码实现
+       阶段: review         | 状态: 进行中  → 恢复 review，继续代码审查
+       阶段: [任意]         | 状态: 已完成  → 该阶段完成，询问用户下一步
+
+  ❌ 不存在：
+     → 当前没有进行中的任务
+     → 等待用户描述新需求，然后按 AGENTS.md 第 4 节正常流程开始
+```
+
+**绝对禁止**以下行为：
+- `progress.md` 存在时，忽略其内容，转而检查 openspec/ 目录或 task_plan.md 来判断阶段
+- `progress.md` 显示「brainstorming 进行中」时，跳过 brainstorming 直接进入任何后续阶段
+- `progress.md` 显示「openspec 进行中」时，跳过 openspec 直接进入 executing
+- 在没有 `progress.md` 的情况下，假设某个阶段已完成或直接进入执行
+</EXTREMELY-IMPORTANT>
 
 3. 读取完成后，**逐节确认以下内容仍然有效**：
    - 第 1 节：`get_context` MCP 工具已调用（如尚未调用，立即调用）
@@ -64,23 +62,13 @@ $ARGUMENTS
 当前任务复杂度：[trivial / small / medium / large]
 本阶段激活的 Skills：[列出]
 
-📍 恢复检测结果：
-  检测到的文件：[列出存在的 planning 文件]
+📍 恢复检测结果（来自 progress.md）：
+  progress.md 状态：[存在 / 不存在]
   当前阶段：[brainstorming / openspec / writing-plans / executing / review / 无进行中任务]
   阶段状态：[进行中 / 已完成]
-  上次断点：[简述上次执行到的位置]
+  上次断点：[简述 progress.md 中最后记录的内容]
 
-下一步：[基于恢复检测，接下来要做什么]
+下一步：[基于 progress.md 的恢复结果，接下来要做什么]
 ```
 
-5. **恢复执行**：根据步骤 2 的检测结果恢复到正确的阶段，**不得跳过未完成的阶段**
-
-<EXTREMELY-IMPORTANT>
-**绝对禁止**以下行为：
-- 在 progress.md 记录为 "brainstorming 进行中" 时跳过 brainstorming
-- 在 openspec 文档链未完成时跳过 openspec
-- 在没有任何 planning 文件时假设某个阶段已完成
-- 忽略步骤 2 的阶段检测直接进入执行
-
-**核心原则**：宁可重复已完成的阶段，也不能跳过未完成的阶段。
-</EXTREMELY-IMPORTANT>
+5. **恢复执行**：根据步骤 2 的 `progress.md` 读取结果恢复到正确的阶段
