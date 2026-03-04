@@ -36,7 +36,7 @@ AI AGENT INSTALLATION INSTRUCTIONS
 ### 1. Clone 本仓库（一次性操作）
 
 ```bash
-git clone ssh://git@192.168.31.101:2333/swjswj/dev-skills-kit.git ~/dev-skills-kit
+git clone https://github.com/parker-swj/dev-skills-kit.git ~/dev-skills-kit
 ```
 
 ### 2. 安装到你的项目

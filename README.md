@@ -94,19 +94,31 @@
 
 ## 快速开始
 
-### 1. 获取仓库
+### 第 1 步：获取仓库（一次性操作）
 
 ```bash
-git clone <你的仓库地址> ~/dev-skills-kit
+git clone https://github.com/parker-swj/dev-skills-kit.git ~/dev-skills-kit
 ```
 
-### 2. 安装到目标项目
+### 第 2 步：安装到目标项目（二选一）
+
+#### 方式一：让 AI 帮你装（最简单 ⭐）
+
+在你的目标项目目录下，打开任意 AI 编程助手（Antigravity、Cursor、Codex、OpenCode 等），对 AI 说：
+
+```
+请阅读 ~/dev-skills-kit/AI_INSTANCE.md 并按照说明安装到当前项目
+```
+
+AI 会读取安装指引，自动执行 `install.sh`，全程无需手动操作。
+
+#### 方式二：手动运行脚本
 
 ```bash
-dev-skills-kit/install.sh /path/to/your-project
+~/dev-skills-kit/install.sh /path/to/your-project
 ```
 
-脚本自动完成以下全部工作：
+两种方式都会自动完成以下全部工作：
 
 - ✅ 从 `github-source/` 精选并复制 ~31 个 SKILL.md 到 `.agent/skills/`
 - ✅ 运行 `build.sh` 构建四端 AGENTS 配置文件
@@ -117,7 +129,7 @@ dev-skills-kit/install.sh /path/to/your-project
 
 > 首次运行时，如果 `github-source/` 不存在，脚本会自动调用 `update-sources.sh` 拉取上游源码。
 
-### 3. 开始使用
+### 第 3 步：开始使用
 
 安装后无需额外配置。AI Agent 进入项目后会自动加载对应平台的规则，并根据任务场景按需读取相关 SKILL.md。
 
