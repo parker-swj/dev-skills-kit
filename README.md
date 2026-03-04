@@ -1,13 +1,81 @@
 # dev-skills-kit
 
-**让 AI 编程助手遵循 TDD、系统化调试、分级任务规划等最佳实践来帮你写代码。**
+**对主流开源 AI 开发 Skills 的优点提纯——去掉教条，保留精华，补上缺失。**
 
 运行一条命令，就能把从多个开源仓库中精选的 ~31 个 AI Skills（涵盖方法论、技术栈规范、状态持久化）安装进你的项目，并自动适配 Antigravity、Cursor、Codex、OpenCode 四个 AI 平台。
 
-- 🎯 **不是又一个超大提示词文件** —— Skills 按需加载，不浪费 Token
-- 🔧 **不是手动复制粘贴** —— `install.sh` 一键安装到任意项目，团队统一标准
-- 🔀 **自主选择加载Skills** —— 改个变量名走轻量流程，重构系统走完整方法论
-- 🧠 **自主学习经验沉淀** —— 任务完成后自动提取可复用经验，后续任务按需检索历史经验作为参考
+---
+
+## 为什么需要这个项目？
+
+市面上已经有很多优秀的 AI 编程 Skills 开源项目，但**每个都有明显的短板**。直接使用任何单一项目，你都会遇到问题：
+
+### 上游项目的优点与缺点
+
+#### [superpowers](https://github.com/obra/superpowers) — 开发方法论框架
+
+**✅ 优点：唯一覆盖完整开发流程的框架**
+- 14 个 Skills 组成严格有序的开发管线：需求分析 → 设计 → 计划 → TDD → 代码审查 → 分支收尾
+- "反合理化"防御设计——预判并封堵 AI 跳过规则的借口
+- 三层质量保障：TDD + 双阶段审查 + 验证核查门
+- 将人类的软件工程最佳实践编码为 AI 可执行的标准操作程序
+
+**❌ 缺点：过度理想化，现实中处处碰壁**
+- 🔴 **小任务流程过载**：改个变量名也要走 brainstorming → 计划 → worktree → 子代理 → 审查 6 步流程
+- 🔴 **Token 爆炸**：每个任务 3 个子代理（实现者 + 规格审查 + 质量审查），10 个任务 ≥ 30 次子代理调用
+- 🔴 **平台强绑定**：深度依赖 Claude Code 的 `Task` tool / `Skill` tool / `TodoWrite`，其他平台无法直接使用
+- 🟠 **TDD 教条化**："先写测试，没有例外"——但 UI、配置文件、ML 脚本、IaC 并不适合严格 TDD
+- 🟠 **假设干净代码库**：要求启动时测试全绿，遗留代码库直接卡在第一步
+- 🟡 **用户疲劳**：苏格拉底式逐个追问，经验丰富的开发者 30 分钟回答完问题才能开始写代码
+- 🟡 **无学习机制**：Skills 是静态文档，没有从执行历史中自动积累经验的能力
+
+#### [everything-claude-code](https://github.com/affaan-m/everything-claude-code) — 全方位配置集合
+
+**✅ 优点：覆盖面极广的技术栈规范**
+- 40+ Skills 按语言分类（Go / Python / TypeScript / Java / Spring Boot）
+- 覆盖 Superpowers 没有的领域：安全审查、E2E 测试、Docker 部署、数据库迁移
+- `continuous-learning-v2` 提供经验沉淀能力
+
+**❌ 缺点：大而全但缺乏体系**
+- 🔴 **与 Superpowers 大量冲突**：TDD、计划、代码审查流程各有一套，同时启用会打架
+- 🟠 **全量加载浪费 Token**：所有规则塞进单个大文件，每次会话全量注入上下文
+- � **经验沉淀依赖 Hooks**：`continuous-learning-v2` 需要 Claude Code Hooks，其他平台不可用
+
+#### [planning-with-files](https://github.com/OthmanAdi/planning-with-files) — 状态持久化
+
+**✅ 优点：解决 AI 长会话"失忆"痛点**
+- 3 个文件（`task_plan.md` / `findings.md` / `progress.md`）让 Agent 上下文丢失后能完全恢复
+- 2-Action Rule 防止信息丢失，3-Strike Protocol 防止无限循环
+
+**❌ 缺点：纯工具，缺乏方法论指导**
+- 🟡 只管"记住状态"，不管"怎么做开发"——需要与方法论框架配合才有意义
+
+#### [OpenSpec](https://github.com/Fission-AI/OpenSpec) — 规范驱动开发
+
+**✅ 优点：需求可追溯的完整文档链**
+- proposal（Why）→ specs（What）→ design（How）→ tasks（执行清单）完整归档
+- 适合团队协作和审计合规场景
+
+**❌ 缺点：只适合大型任务**
+- � 对日常中小型开发来说流程过重，90% 的任务用不上
+
+### 本项目的本质
+
+**dev-skills-kit 不是简单打包**——它是对上述各家优点的**提纯**，加上缺陷的**补丁**：
+
+| 上游问题 | 提纯方案 |
+|----------|----------|
+| Superpowers 小任务流程过载 | **场景分级调度器**：trivial / small / medium / large 四级，改变量名 2 秒做完，重构系统走完整方法论 |
+| Superpowers TDD 教条化 | **TDD 灵活化**：UI 用截图对比、配置用运行验证、IaC 用 dry-run，跳过时记录原因 |
+| Superpowers 平台强绑定 | **模块化构建四端配置**：一套源码生成 Antigravity / Cursor / Codex / OpenCode 各自的最优配置 |
+| ECC 经验沉淀依赖 Hooks | **零 Hooks 的 auto-learning**：纯文件驱动，任务完成自动提取经验，新任务按需检索，所有平台通用 |
+| ECC 与 Superpowers 冲突 | **冲突消解**：方法论用 Superpowers，技术栈规范从 ECC 精选，去掉重叠的 TDD/plan/review agents |
+| 所有规则全量注入浪费 Token | **按需加载**：AGENTS.md 只含调度骨架，具体 SKILL.md 按任务复杂度动态读取 |
+| AI 长会话遗忘规则 | **三层防遗忘**：planning-with-files 持久化 + 定期刷新 + `/go` 手动重载 |
+| Superpowers 缺少学习机制 | **auto-learning** 自动沉淀经验到 `docs/learnings/`，后续任务按文件名检索 |
+| Superpowers 用户疲劳 | **Expert Mode**：用户提供 3+ 项需求细节时，跳过苏格拉底追问，直接确认 → 开干 |
+
+> **一句话总结**：Superpowers 的方法论是骨架，缺陷补丁是关节，ECC 的技术 Skills 是肌肉，planning-with-files 是记忆。四者提纯组合，灵活分级，才是适合真实项目的最优解。
 
 ---
 
