@@ -228,13 +228,26 @@ safe_cp_dir "$SCRIPT_DIR/.agent/workflows" "$TARGET/.agent/workflows" ".agent/wo
 echo "   ✅ 完成"
 echo ""
 
-# ── 构建 AGENTS 配置文件 ────────────────────────────────
+# ── 构建 AGENTS 配置文件（到临时目录，避免修改仓库文件）────
+BUILD_TMPDIR="$(mktemp -d)"
+trap 'rm -rf "$BUILD_TMPDIR"' EXIT
+
 if [ -x "$SCRIPT_DIR/.agent/builder/build.sh" ]; then
     echo "🔨 构建最新版本的 AGENTS 配置文件..."
-    bash "$SCRIPT_DIR/.agent/builder/build.sh" > /dev/null
+    bash "$SCRIPT_DIR/.agent/builder/build.sh" "$BUILD_TMPDIR" > /dev/null
     echo "   ✅ 完成"
     echo ""
 fi
+
+# 构建输出目录存在时优先使用构建后的最新文件，否则回退到仓库已有文件
+agents_src() {
+    local filename="$1"
+    if [ -f "$BUILD_TMPDIR/$filename" ]; then
+        echo "$BUILD_TMPDIR/$filename"
+    else
+        echo "$SCRIPT_DIR/$filename"
+    fi
+}
 
 echo "📁 复制各大平台专属配置及拦截规则 ..."
 
@@ -254,10 +267,10 @@ safe_cp_dir "$SCRIPT_DIR/.agent/workflows" "$TARGET/.claude/commands" ".claude/c
 # OpenCode 拦截配置
 safe_cp_dir "$SCRIPT_DIR/.opencode" "$TARGET/.opencode" ".opencode"
 
-# 各平台专属高级配置
-safe_cp "$SCRIPT_DIR/.agent/AGENTS.cursor.md" "$TARGET/.agent/AGENTS.cursor.md" ".agent/AGENTS.cursor.md"
-safe_cp "$SCRIPT_DIR/.agent/AGENTS.codex.md" "$TARGET/.agent/AGENTS.codex.md" ".agent/AGENTS.codex.md"
-safe_cp "$SCRIPT_DIR/.agent/AGENTS.opencode.md" "$TARGET/.agent/AGENTS.opencode.md" ".agent/AGENTS.opencode.md"
+# 各平台专属高级配置（从构建输出目录读取）
+safe_cp "$(agents_src AGENTS.cursor.md)" "$TARGET/.agent/AGENTS.cursor.md" ".agent/AGENTS.cursor.md"
+safe_cp "$(agents_src AGENTS.codex.md)" "$TARGET/.agent/AGENTS.codex.md" ".agent/AGENTS.codex.md"
+safe_cp "$(agents_src AGENTS.opencode.md)" "$TARGET/.agent/AGENTS.opencode.md" ".agent/AGENTS.opencode.md"
 
 echo "   ✅ 完成"
 echo ""
@@ -266,26 +279,26 @@ echo ""
 TARGET_AGENTS="$TARGET/AGENTS.md"
 MARKER_BEGIN="<!-- dev-skills-kit: begin -->"
 MARKER_END="<!-- dev-skills-kit: end -->"
+AGENTS_SRC="$(agents_src AGENTS.md)"
 
 echo "📄 处理根目录 AGENTS.md (Antigravity 版) ..."
 if [ ! -f "$TARGET_AGENTS" ]; then
     # 首次安装：创建文件，用标记包裹以便后续更新
     {
         echo "$MARKER_BEGIN"
-        cat "$SCRIPT_DIR/AGENTS.md"
+        cat "$AGENTS_SRC"
         echo "$MARKER_END"
     } > "$TARGET_AGENTS"
     echo "   ✅ 已创建 AGENTS.md"
 else
     if grep -q "$MARKER_BEGIN" "$TARGET_AGENTS"; then
         # 已有标记：替换区块内容为最新版本
-        # 用 sed 删除 begin 和 end 标记之间的所有内容（含标记本身），再插入新版
         # 创建临时文件以安全替换
         TMPFILE="$(mktemp)"
         # 使用 awk 进行精确的区块替换
         awk -v marker_begin="$MARKER_BEGIN" \
             -v marker_end="$MARKER_END" \
-            -v newcontent="$SCRIPT_DIR/AGENTS.md" \
+            -v newcontent="$AGENTS_SRC" \
             '
             $0 == marker_begin { 
                 print marker_begin
@@ -308,7 +321,7 @@ else
         {
             echo ""
             echo "$MARKER_BEGIN"
-            cat "$SCRIPT_DIR/AGENTS.md"
+            cat "$AGENTS_SRC"
             echo "$MARKER_END"
         } >> "$TARGET_AGENTS"
         echo "   ✅ 已追加到现有 AGENTS.md"
