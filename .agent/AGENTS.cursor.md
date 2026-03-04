@@ -243,7 +243,7 @@ medium/large 任务进入 brainstorming 阶段时，**第一个动作**必须是
 ```
 激活：
   ├─ brainstorming（精简版）          → view_file 读取 SKILL.md，但遵守 Expert Mode 规则
-  ├─ writing-plans 或 OpenSpec       → 见下方 OpenSpec 检测（与 large 相同逻辑）
+  ├─ writing-plans                    → view_file 读取 SKILL.md
   ├─ executing-plans                  → 分批执行 + 人工检查点
   ├─ planning-with-files              → 创建 3 个文件（规则已内嵌）
   ├─ test-driven-development          → 标准 RED-GREEN-REFACTOR
@@ -254,27 +254,23 @@ medium/large 任务进入 brainstorming 阶段时，**第一个动作**必须是
   ├─ security-guidance                → 编写/审查代码时执行安全检查
   └─ 技术栈 patterns + auto-learning（见 3.3 节）
 
-跳过：using-git-worktrees（可选）
+跳过：using-git-worktrees（可选）、OpenSpec
 ```
-
-> ⚠️ **OpenSpec 判断不由复杂度决定，而由项目目录决定**：medium 同样需执行下方检测。
 
 #### Large（完整模式）
 
 激活：全部 skills（通过 view_file 按需读取对应 SKILL.md）
 
 <EXTREMELY-IMPORTANT>
-**Medium / Large 模式 Step 2 — OpenSpec 检测（brainstorming 之后，必须执行，medium 和 large 均适用）：**
+**Large 模式 Step 2 — OpenSpec 检测（阶段 1 · brainstorming 之后，必须执行）：**
 
-在完成 brainstorming（Step 1）后、固化设计之前，你**必须**执行以下检测：
+在完成 brainstorming（Step 1）后、进入 writing-plans 之前，你**必须**执行以下检测：
 
 1. **检查项目根目录是否存在 `openspec/` 文件夹**（使用 `list_dir` 或 `find` 等工具）
 2. 根据检测结果走对应分支——**不得跳过检测直接进入 writing-plans**：
 
    - **存在 `openspec/` 目录** → **必须**走 OpenSpec 分支（下方 Path A）
    - **不存在 `openspec/` 目录** → 走 writing-plans 分支（下方 Path B）
-
-**绝对禁止**：不检测直接假设"没有 openspec"而跳入 writing-plans。
 </EXTREMELY-IMPORTANT>
 
 ##### 阶段 1：设计 & 归档
