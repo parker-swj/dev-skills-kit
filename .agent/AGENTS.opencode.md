@@ -100,10 +100,12 @@
 |------|------|----------|
 | `task_plan.md` | 阶段、进度、决策 | 每个阶段结束后 |
 | `findings.md` | 研究发现、错误记录 | 发现任何有价值信息时 |
-| `progress.md` | 会话日志、当前阶段、测试结果 | **brainstorm 开始时立即创建**，贯穿整个会话 |
+| `progress.md` | **阶段状态机（唯一恢复依据）**、会话日志 | **每次阶段转换时立即更新**，brainstorm 开始时创建 |
 
 <EXTREMELY-IMPORTANT>
-**Brainstorm 立即建档规则（防跨会话丢失）：**
+**`progress.md` 是跨会话恢复的唯一权威状态来源。**
+
+**写入规则：**
 
 medium/large 任务进入 brainstorming 阶段时，**第一个动作**必须是创建 `progress.md`，写入：
 
@@ -126,21 +128,31 @@ medium/large 任务进入 brainstorming 阶段时，**第一个动作**必须是
 [随着讨论推进，持续记录关键结论、决策和待确认项]
 ```
 
-**每轮 brainstorm 对话后**，立即将新的结论追加到 `progress.md` 的 "Brainstorm 记录"部分。
-这确保即使网络断开，新会话也能通过读取 `progress.md` 恢复到正确的阶段。
+**阶段转换时必须立即更新 `progress.md` 的「当前阶段」节：**
 
-阶段转换时（如 brainstorm → openspec / writing-plans），必须更新 `progress.md` 中的「当前阶段」和「状态」。
+| 转换事件 | 必须更新为 |
+|---------|-----------|
+| 开始 brainstorming | `阶段: brainstorming` / `状态: 进行中` |
+| brainstorming 结束，进入 openspec | `阶段: openspec` / `状态: 进行中` |
+| brainstorming 结束，进入 writing-plans | `阶段: writing-plans` / `状态: 进行中` |
+| openspec 完成，进入 executing | `阶段: executing` / `状态: 进行中` |
+| writing-plans 完成，进入 executing | `阶段: executing` / `状态: 进行中` |
+| executing 完成，进入 review | `阶段: review` / `状态: 进行中` |
+| 任务全部完成 | `状态: 已完成` |
+
+**`progress.md` 缺失 = 从头开始**：如果新会话中 `progress.md` 不存在，说明没有进行中的任务，等待用户描述新需求，不得假设任何阶段已完成。
 </EXTREMELY-IMPORTANT>
 
 **关键规则：**
 - **Brainstorm 立即建档**：brainstorm 开始的第一个动作就是创建 `progress.md`，防跨会话丢失
+- **阶段转换必更新**：每次阶段转换**立即**更新 `progress.md`，不得延迟
 - **2-Action Rule**：每 2 次搜索/浏览操作后，立即保存发现到 `findings.md`
 - **Read Before Decide**：做重大决策前，重新读取 `task_plan.md`
 - **Log ALL Errors**：每个错误都记录，防止重复犯错
 - **3-Strike Protocol**：同一问题 3 次失败后，升级给用户
-- **阶段转换必更新**：每次阶段转换（brainstorm→openspec→plan→execute→review）必须更新 `progress.md`
 
 > 这些文件替代了 Claude Code 的 `TodoWrite` 工具，且**功能更强**——持久化、可恢复、跨会话。
+> `progress.md` 是 `/go` 工作流的唯一恢复依据，必须始终保持最新状态。
 
 ### 3.3 经验沉淀 — auto-learning
 
@@ -413,18 +425,18 @@ Step 3. using-git-worktrees（可选） → 隔离工作区
 ```
 
 > 这比依赖上下文记忆的方式更可靠——即使 Agent 遗忘了之前的会话内容，
-> 只要读取 3 个 planning 文件就能完全恢复状态。
+> 只要 `/go` 读取 `progress.md` 就能完全恢复到正确阶段。
 
 #### 规则 3：大任务会话分割
 
 当任务达到 **large** 等级时，按以下节点主动分割会话：
 
 ```
-会话 1: brainstorming → writing-plans → 保存计划到 task_plan.md
-         ↓ （用户开新会话）
-会话 2: 读取 task_plan.md → executing-plans（任务 1-N）→ 更新 progress.md
+会话 1: brainstorming → openspec/writing-plans → 保存计划到 progress.md + task_plan.md
+         ↓ （用户开新会话，/go 读取 progress.md 恢复）
+会话 2: 读取 progress.md 确认阶段 → executing-plans（任务 1-N）→ 更新 progress.md
          ↓ （如果未完成，用户开新会话）
-会话 3: 读取 3 个 planning 文件 → 继续执行 → 代码审查 → finishing-branch
+会话 3: 读取 progress.md 确认阶段 → 继续执行 → 代码审查 → finishing-branch
 ```
 
 **会话分割时机判断**：

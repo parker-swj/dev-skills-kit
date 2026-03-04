@@ -439,18 +439,18 @@ Step 3. using-git-worktrees（可选） → 隔离工作区
 ```
 
 > 这比依赖上下文记忆的方式更可靠——即使 Agent 遗忘了之前的会话内容，
-> 只要读取 3 个 planning 文件就能完全恢复状态。
+> 只要 `/go` 读取 `progress.md` 就能完全恢复到正确阶段。
 
 #### 规则 3：大任务会话分割
 
 当任务达到 **large** 等级时，按以下节点主动分割会话：
 
 ```
-会话 1: brainstorming → writing-plans → 保存计划到 task_plan.md
-         ↓ （用户开新会话）
-会话 2: 读取 task_plan.md → executing-plans（任务 1-N）→ 更新 progress.md
+会话 1: brainstorming → openspec/writing-plans → 保存计划到 progress.md + task_plan.md
+         ↓ （用户开新会话，/go 读取 progress.md 恢复）
+会话 2: 读取 progress.md 确认阶段 → executing-plans（任务 1-N）→ 更新 progress.md
          ↓ （如果未完成，用户开新会话）
-会话 3: 读取 3 个 planning 文件 → 继续执行 → 代码审查 → finishing-branch
+会话 3: 读取 progress.md 确认阶段 → 继续执行 → 代码审查 → finishing-branch
 ```
 
 **会话分割时机判断**：
