@@ -222,38 +222,8 @@
   ├─ verification-before-completion   → 强制验证
   └─ 技术栈 patterns + auto-learning（见 3.3 节）
 
-跳过：using-git-worktrees（可选）
+跳过：using-git-worktrees（可选）、OpenSpec
 ```
-
-<EXTREMELY-IMPORTANT>
-**Medium 模式必须遵守的用户确认检查点：**
-
-Medium 任务的执行流程如下，其中 🚫 标记的步骤为**强制停止点**——你必须停下来等待用户回复确认后才能继续：
-
-```
-Step 1. 代码探索 + brainstorming（精简版 / Expert Mode）
-    ↓
-Step 2. 输出需求理解确认摘要（表格或清单形式）
-    ↓
-🚫 STOP — 等待用户确认
-    ↓（用户回复确认后）
-Step 3. 检查 openspec/ 目录是否存在，二选一：
-
-  Path A — openspec/ 目录存在：
-    /opsx:new <change-name>-<YYYYMMDDHHMM>  → 建变更目录
-    /opsx:ff                                → 生成文档链（proposal → specs → design → tasks）
-    ✅ tasks.md 即执行清单，跳过 writing-plans
-
-  Path B — openspec/ 目录不存在：
-    writing-plans → 创建 task_plan.md
-    创建 planning 文件（findings.md / progress.md）
-    ↓
-Step 4. 开始编码实现
-```
-
-**禁止行为**：在用户回复确认之前，不得创建 planning 文件、不得开始编码、不得执行任何实现操作。
-"如果以上理解正确" 这类假设性语句**不能**替代用户的实际确认回复。
-</EXTREMELY-IMPORTANT>
 
 #### Large（完整模式）
 
@@ -356,9 +326,8 @@ Step 3. using-git-worktrees（可选） → 隔离工作区
 
 **Expert Mode 行为**：
 - ❌ 跳过苏格拉底式逐一提问
-- ✅ 直接确认理解 → 补充遗漏点（如有） → 一次性呈现确认摘要
-- 🚫 **输出确认摘要后必须停止，等待用户回复确认**，确认后才能进入 writing-plans / 创建 planning 文件 / 开始编码
-- ✅ 将确认浓缩为一次性呈现，而非分段审批——但呈现后必须等用户确认
+- ✅ 直接确认理解 → 补充遗漏点（如有） → 进入 writing-plans
+- ✅ 将确认浓缩为一次性呈现，而非分段审批
 
 ### 5.3 遗留代码库适配
 

@@ -3,9 +3,13 @@ AI AGENT INSTALLATION INSTRUCTIONS
 ===================================
 用户已将此文件路径提供给你，请按以下步骤将 dev-skills-kit 安装到用户的当前项目：
 
-1. 确定 dev-skills-kit 仓库路径：本文件（README.md）所在目录即为 dev-skills-kit 根目录
+1. 确定 dev-skills-kit 仓库路径：本文件（AI_INSTANCE.md）所在目录即为 dev-skills-kit 根目录
 2. 确定目标项目路径：用户当前工作的项目目录（询问用户或根据上下文判断）
-3. 执行安装：运行 <dev-skills-kit根目录>/install.sh <目标项目路径>
+3. 执行安装/更新：
+   - 首次安装：运行 <dev-skills-kit根目录>/install.sh <目标项目路径>
+   - 更新（已安装过）：运行 <dev-skills-kit根目录>/install.sh -f <目标项目路径>
+     （-f 标志强制覆盖旧文件，确保最新配置生效。不加 -f 会弹出交互式提示，无法自动完成）
+4. 如果用户说"安装"且目标项目已存在 .agent/skills/ 目录，说明是更新场景，请使用 -f 标志
 
 注意：如果用户未指定目标项目路径，请先询问。
 安装完成后所有技术栈 Skills 均已启用，AI 会按需读取对应 SKILL.md，无需额外配置。

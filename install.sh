@@ -264,21 +264,53 @@ echo ""
 
 # ── 追加根目录 AGENTS.md（Antigravity 降级版）─────────────────────
 TARGET_AGENTS="$TARGET/AGENTS.md"
+MARKER_BEGIN="<!-- dev-skills-kit: begin -->"
+MARKER_END="<!-- dev-skills-kit: end -->"
 
 echo "📄 处理根目录 AGENTS.md (Antigravity 版) ..."
 if [ ! -f "$TARGET_AGENTS" ]; then
-    cp "$SCRIPT_DIR/AGENTS.md" "$TARGET_AGENTS"
+    # 首次安装：创建文件，用标记包裹以便后续更新
+    {
+        echo "$MARKER_BEGIN"
+        cat "$SCRIPT_DIR/AGENTS.md"
+        echo "$MARKER_END"
+    } > "$TARGET_AGENTS"
     echo "   ✅ 已创建 AGENTS.md"
 else
-    MARKER="<!-- dev-skills-kit: begin -->"
-    if grep -q "$MARKER" "$TARGET_AGENTS"; then
-        echo "   ℹ️  AGENTS.md 中已包含 dev-skills-kit 配置，跳过"
-        echo "      如需更新，删除 '<!-- dev-skills-kit: begin/end -->' 区块后重新运行"
+    if grep -q "$MARKER_BEGIN" "$TARGET_AGENTS"; then
+        # 已有标记：替换区块内容为最新版本
+        # 用 sed 删除 begin 和 end 标记之间的所有内容（含标记本身），再插入新版
+        # 创建临时文件以安全替换
+        TMPFILE="$(mktemp)"
+        # 使用 awk 进行精确的区块替换
+        awk -v marker_begin="$MARKER_BEGIN" \
+            -v marker_end="$MARKER_END" \
+            -v newcontent="$SCRIPT_DIR/AGENTS.md" \
+            '
+            $0 == marker_begin { 
+                print marker_begin
+                while ((getline line < newcontent) > 0) print line
+                close(newcontent)
+                skip = 1
+                next
+            }
+            $0 == marker_end {
+                print marker_end
+                skip = 0
+                next
+            }
+            !skip { print }
+            ' "$TARGET_AGENTS" > "$TMPFILE"
+        mv "$TMPFILE" "$TARGET_AGENTS"
+        echo "   ✅ 已更新 AGENTS.md 中的 dev-skills-kit 配置区块"
     else
-        echo "" >> "$TARGET_AGENTS"
-        echo "<!-- dev-skills-kit: begin -->" >> "$TARGET_AGENTS"
-        cat "$SCRIPT_DIR/AGENTS.md" >> "$TARGET_AGENTS"
-        echo "<!-- dev-skills-kit: end -->" >> "$TARGET_AGENTS"
+        # 无标记：追加到末尾（用标记包裹）
+        {
+            echo ""
+            echo "$MARKER_BEGIN"
+            cat "$SCRIPT_DIR/AGENTS.md"
+            echo "$MARKER_END"
+        } >> "$TARGET_AGENTS"
         echo "   ✅ 已追加到现有 AGENTS.md"
     fi
 fi
