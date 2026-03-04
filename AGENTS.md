@@ -183,7 +183,19 @@
 | **trivial** | 改动 ≤ 1 个文件，无逻辑变更 | 改变量名、修 typo、调格式、改配置值 |
 | **small** | 改动 ≤ 3 个文件，预计 < 30 分钟 | 修 bug、添加字段、调整样式 |
 | **medium** | 涉及 3+ 文件，预计 1-4 小时 | 新增 API 端点、实现业务模块 |
-| **large** | 涉及核心模块，预计 > 1 天 | 重写认证、数据库迁移、微服务拆分 |
+| **large** | 涉及核心模块，预计 > 1 天，**或**命中下方任一升级信号 | 重写认证、数据库迁移、微服务拆分 |
+
+**⚠️ Large 升级信号（命中任一条即升级为 large，不论文件数量或预估工时）：**
+
+| 信号 | 说明 | 举例 |
+|------|------|------|
+| **引入新外部依赖** | 新增的依赖库带来架构层面的改变 | 引入 client-go、新 ORM 框架、消息队列 SDK |
+| **引入全新能力/子系统** | 不是对现有功能的增强，而是从零构建全新子系统 | k8s ConfigMap 访问、OAuth2 认证、事件总线 |
+| **多个交叉关注点** | 改动涉及 ≥ 3 个正交关注点，彼此有耦合 | 客户端 → 定时同步 → 本地缓存 → 降级容错 → 可观测指标 |
+| **跨模块影响** | 改动波及多个现有模块的初始化、配置或接口 | settings、server 启动、新模块、metrics、依赖管理 |
+
+> **注意**：文件数量和工时是**表层指标**，容易误判。架构级信号才是区分 medium 和 large 的关键。
+> 例如：「接入 k8s ConfigMap 作为配置源」表面上可能只改 5 个文件、预估 4 小时，但它同时命中了全部 4 条升级信号，必须按 large 处理。
 
 ### 各等级激活的 Skills
 
@@ -269,7 +281,7 @@ Step 3. using-git-worktrees（可选） → 隔离工作区
   ├─ executing-plans                  → 按 tasks.md / task_plan.md 分批执行
   ├─ planning-with-files              → 跨天防失忆（3 文件）
   ├─ test-driven-development          → 严格执行 RED-GREEN-REFACTOR
-  ├─ security-guidance                → 全程安全检查（view_file 读取 `.agent/skills/security-guidance/SKILL.md`）
+  ├─ security-guidance                → 全程安全检查
   └─ 全部技术栈 patterns
 ```
 
