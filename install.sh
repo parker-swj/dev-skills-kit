@@ -389,6 +389,9 @@ TARGET_GITIGNORE="$TARGET/.gitignore"
 # 格式："条目|说明注释"
 GITIGNORE_ENTRIES=(
     ".gemini/|# Antigravity (Google Gemini) AI 运行时 — 会话缓存、知识库（自动生成，勿提交）"
+    "task_plan.md|# AI 任务规划草稿（planning-with-files skill 生成，任务结束后可删除）"
+    "findings.md|# AI 调研发现草稿（planning-with-files skill 生成，任务结束后可删除）"
+    "progress.md|# AI 任务进度日志（planning-with-files skill 生成，任务结束后可删除）"
 )
 
 echo "📄 更新目标项目 .gitignore ..."
