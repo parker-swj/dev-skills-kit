@@ -138,14 +138,31 @@ medium/large 任务进入 brainstorming 阶段时，**第一个动作**必须是
 | openspec 完成，进入 executing | `阶段: executing` / `状态: 进行中` |
 | writing-plans 完成，进入 executing | `阶段: executing` / `状态: 进行中` |
 | executing 完成，进入 review | `阶段: review` / `状态: 进行中` |
-| 任务全部完成 | `状态: 已完成` |
+| 任务全部完成（review 通过） | `状态: 已完成` → **然后触发收尾归档（见下）** |
+
+**任务完成后的收尾归档（closing 阶段）：**
+
+review 通过、`finishing-a-development-branch` 执行后，**必须**执行以下收尾步骤：
+
+```
+1. 更新 progress.md：状态: 已完成，记录完成时间
+2. 将规划文件归档到 .archive/tasks/[完成时间戳]/：
+   - progress.md → .archive/tasks/[时间戳]/
+   - task_plan.md（若存在）→ .archive/tasks/[时间戳]/
+   - findings.md（若存在）→ .archive/tasks/[时间戳]/
+3. 工作区恢复干净状态（无 planning 文件）
+4. 执行 auto-learning：提取经验到 docs/learnings/
+```
+
+这样既保留了任务历史（`.archive/`）以供日后参考，又让工作区干净，下次 `/go` 从全新状态开始。
 
 **`progress.md` 缺失 = 从头开始**：如果新会话中 `progress.md` 不存在，说明没有进行中的任务，等待用户描述新需求，不得假设任何阶段已完成。
 </EXTREMELY-IMPORTANT>
 
 **关键规则：**
 - **Brainstorm 立即建档**：brainstorm 开始的第一个动作就是创建 `progress.md`，防跨会话丢失
-- **阶段转换必更新**：每次阶段转换（brainstorm→openspec/writing-plans→executing→review）**立即**更新 `progress.md`，不得延迟
+- **阶段转换必更新**：每次阶段转换**立即**更新 `progress.md`，不得延迟
+- **任务完成必归档**：review 通过后，planning 文件归档到 `.archive/tasks/`，工作区清空
 - **2-Action Rule**：每 2 次搜索/浏览操作后，立即保存发现到 `findings.md`
 - **Read Before Decide**：做重大决策前，重新读取 `task_plan.md`
 - **Log ALL Errors**：每个错误都记录，防止重复犯错

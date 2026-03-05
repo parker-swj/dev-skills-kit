@@ -56,7 +56,10 @@ $ARGUMENTS
        → 从未完成的审查项继续
      
      阶段: [任意] | 状态: 已完成
-       → 该阶段完成，告知用户已完成，询问下一步
+       → 上次任务已全部完成
+       → 提示用户：planning 文件（progress.md / task_plan.md / findings.md）
+         尚未归档，建议归档到 .archive/tasks/ 以清理工作区
+       → 询问用户是否立即归档，还是手动使用 /reset 处理
 
   ❌ 不存在：
      → 当前没有进行中的任务
