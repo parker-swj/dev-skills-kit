@@ -1,2 +1,0 @@
-description = "保存并验证知识到知识库。"
-prompt = "Read the workflow file .agent/workflows/save-to-kb.md completely, then follow its instructions exactly to save knowledge to the knowledge base. User input: {{args}}"

@@ -1,12 +1,53 @@
-# 上游全量源码（本地用 update-sources.sh 拉取即可）
+# ============================================================
+# dev-skills-kit — .gitignore
+# ============================================================
+
+# ── 上游源码（由 update-sources.sh 拉取，无需上传）──────────
 github-source/
 
-# 压缩包/备份
+# ── AI 工具运行时目录（安装/运行后自动生成，不属于源码）────
+# Antigravity (Google Gemini) — 会话缓存、脑库、对话记录
+.gemini/
+
+# Claude Code — 运行时命令缓存（install.sh 会将 workflows 复制至此）
+.claude/
+
+# OpenSpec — 运行时生成的规格文件缓存（openspec init 生成）
+.openspec/
+
+# ── IDE / 编辑器本地配置（个人环境，不应共享）──────────────
+# VSCode 本地设置（.cursor/rules 是模板，需要上传；.vscode/settings 是本地的）
+.vscode/
+
+# JetBrains IDE
+.idea/
+*.iml
+
+# ── Node.js（openspec 或其他工具安装后可能产生）────────────
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-error.log*
+
+# ── 压缩包 / 备份 ─────────────────────────────────────────
 *.tar.gz
 *.zip
 *.rar
 *.7z
+*.bak
+*.tmp
+*.swp
+*~
 
-# OS 文件
+# ── 系统文件 ─────────────────────────────────────────────
 .DS_Store
+.DS_Store?
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ── 构建产物 / 临时目录 ───────────────────────────────────
+dist/
+build/
+tmp/
+temp/

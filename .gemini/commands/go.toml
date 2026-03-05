@@ -1,2 +1,0 @@
-description = "重新加载 AGENTS.md 规则，同步当前状态，开始/继续任务"
-prompt = "Read the workflow file .agent/workflows/go.md completely, then follow its instructions exactly to reload AGENTS.md rules and reset agent behavior. {{args}}"
