@@ -28,15 +28,35 @@ $ARGUMENTS
   ✅ 存在：
      → 读取 progress.md 中的「当前阶段」节
      → 找到「阶段:」和「状态:」字段，这就是当前恢复点
-     → 直接恢复到该阶段，不再检查其他任何文件
+     → 按下方映射表加载对应上下文，再恢复执行
      
-     阶段恢复映射：
-       阶段: brainstorming  | 状态: 进行中  → 恢复 brainstorming，继续讨论
-       阶段: openspec       | 状态: 进行中  → 恢复 openspec，继续文档链生成
-       阶段: writing-plans  | 状态: 进行中  → 恢复 writing-plans，继续任务规划
-       阶段: executing      | 状态: 进行中  → 恢复 executing，继续代码实现
-       阶段: review         | 状态: 进行中  → 恢复 review，继续代码审查
-       阶段: [任意]         | 状态: 已完成  → 该阶段完成，询问用户下一步
+     阶段恢复映射（阶段 → 必须加载的上下文 → 恢复动作）：
+     
+     阶段: brainstorming | 状态: 进行中
+       → 读取 progress.md 的「Brainstorm 记录」和「参考上下文」节
+       → 从上次讨论结论继续 brainstorming
+     
+     阶段: openspec | 状态: 进行中
+       → 读取 progress.md 中记录的变更目录名（或用 list_dir 查找 openspec/ 下
+         非 archive/ 的目录，即正在进行的变更）
+       → 读取该变更目录中已存在的文档（proposal / specs / design / tasks）
+       → 判断文档链完成到哪一步，从下一步继续生成
+     
+     阶段: writing-plans | 状态: 进行中
+       → 读取 task_plan.md（若已存在）了解已有规划
+       → 从未完成的规划部分继续
+     
+     阶段: executing | 状态: 进行中
+       → 读取 task_plan.md 或 openspec/ 变更目录下的 tasks.md
+       → 读取 progress.md 的会话记录确认已完成的任务
+       → 从第一个未完成的任务继续
+     
+     阶段: review | 状态: 进行中
+       → 读取 task_plan.md 了解原始计划
+       → 从未完成的审查项继续
+     
+     阶段: [任意] | 状态: 已完成
+       → 该阶段完成，告知用户已完成，询问下一步
 
   ❌ 不存在：
      → 当前没有进行中的任务
@@ -44,9 +64,9 @@ $ARGUMENTS
 ```
 
 **绝对禁止**以下行为：
-- `progress.md` 存在时，忽略其内容，转而检查 openspec/ 目录或 task_plan.md 来判断阶段
+- `progress.md` 存在时，跳过上方"必须加载的上下文"步骤直接开始执行
 - `progress.md` 显示「brainstorming 进行中」时，跳过 brainstorming 直接进入任何后续阶段
-- `progress.md` 显示「openspec 进行中」时，跳过 openspec 直接进入 executing
+- `progress.md` 显示「openspec 进行中」时，不读 openspec/ 变更目录就直接开始生成或跳入 executing
 - 在没有 `progress.md` 的情况下，假设某个阶段已完成或直接进入执行
 </EXTREMELY-IMPORTANT>
 
