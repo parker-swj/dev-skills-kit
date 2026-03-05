@@ -378,6 +378,55 @@ if command -v openspec &> /dev/null; then
     echo ""
 fi
 
+# ── 更新目标项目 .gitignore ──────────────────────────────
+# install.sh 会在目标项目创建若干 AI 工具运行时目录（.gemini/ 等），
+# 这些目录包含会话缓存、知识库等个人数据，不应提交到 git 仓库。
+# 以下逻辑将这些条目安全地追加到目标项目的 .gitignore（已有则跳过）。
+
+TARGET_GITIGNORE="$TARGET/.gitignore"
+
+# 定义需要添加到用户项目 .gitignore 的条目
+# 格式："条目|说明注释"
+GITIGNORE_ENTRIES=(
+    ".gemini/|# Antigravity (Google Gemini) AI 运行时 — 会话缓存、知识库（自动生成，勿提交）"
+)
+
+echo "📄 更新目标项目 .gitignore ..."
+
+# 若 .gitignore 不存在则创建
+if [ ! -f "$TARGET_GITIGNORE" ]; then
+    touch "$TARGET_GITIGNORE"
+    echo "   📝 已创建 .gitignore"
+fi
+
+GITIGNORE_ADDED=0
+GITIGNORE_SKIPPED=0
+
+for ENTRY_DEF in "${GITIGNORE_ENTRIES[@]}"; do
+    ENTRY="${ENTRY_DEF%%|*}"          # 实际忽略规则，如 .gemini/
+    COMMENT="${ENTRY_DEF##*|}"        # 人类可读注释
+
+    # 检查条目是否已存在（精确行匹配，忽略行首尾空白）
+    if grep -qxF "$ENTRY" "$TARGET_GITIGNORE" 2>/dev/null; then
+        echo "   ⏭️  已存在，跳过：$ENTRY"
+        (( GITIGNORE_SKIPPED++ )) || true
+    else
+        # 追加注释 + 条目（如果文件末尾没有换行，先补一个）
+        if [ -s "$TARGET_GITIGNORE" ] && [ "$(tail -c1 "$TARGET_GITIGNORE" | wc -l)" -eq 0 ]; then
+            echo "" >> "$TARGET_GITIGNORE"
+        fi
+        echo "$COMMENT" >> "$TARGET_GITIGNORE"
+        echo "$ENTRY" >> "$TARGET_GITIGNORE"
+        echo "   ✅ 已添加：$ENTRY"
+        (( GITIGNORE_ADDED++ )) || true
+    fi
+done
+
+if [ "$GITIGNORE_ADDED" -eq 0 ]; then
+    echo "   ℹ️  .gitignore 无需更改（所有条目均已存在）"
+fi
+echo ""
+
 # ── 完成提示 ────────────────────────────────────────────
 echo "✅ 安装完成！"
 echo ""
