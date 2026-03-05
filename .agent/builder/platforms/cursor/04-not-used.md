@@ -9,4 +9,4 @@
 | ECC 的 planner / tdd-guide agents | 与 Superpowers 流程冲突 |
 | Claude Code Hooks（SessionStart 等） | 已由 `.cursor/rules/` 自动加载机制替代 |
 | Claude Code `Skill` tool | 已由 `view_file` 等读取工具替代 |
-| Claude Code `TodoWrite` | 已由 planning-with-files 的 3 文件替代 |
+| Claude Code `TodoWrite` | 已由 process.md 一体化清单替代 |

@@ -86,73 +86,33 @@
 | writing-skills | `.agent/skills/writing-skills/SKILL.md` | 如何创建新 skill |
 > **注意：`subagent-driven-development` 不在列表中。** 作为 Cursor Agent，你具备原生自主执行复杂任务的能力，不需要调度额外子代理，统一利用你的主观能动性结合 `executing-plans` 推进即可。
 
-### 3.2 状态持久化 — planning-with-files
-
-| Skill | view_file 路径 |
-|-------|---------------|
-| planning-with-files | `.agent/skills/planning-with-files/SKILL.md` |
-
-**核心规则（内嵌，无需额外读取）：**
-
-复杂任务（medium/large）开始前，必须创建 3 个文件：
-
-| 文件 | 用途 | 更新时机 |
-|------|------|----------|
-| `task_plan.md` | 阶段、进度、决策 | 每个阶段结束后 |
-| `findings.md` | 研究发现、错误记录 | 发现任何有价值信息时 |
-| `progress.md` | **阶段状态机（唯一恢复依据）**、会话日志 | **每次阶段转换时立即更新**，brainstorm 开始时创建 |
+### 3.2 状态持久化 — process.md（一体化清单）
 
 <EXTREMELY-IMPORTANT>
-**`progress.md` 是跨会话恢复的唯一权威状态来源。**
+**`process.md` 是当前任务的唯一导航文件和恢复依据。**
 
-**写入规则：**
+**创建规则：**
+- small/medium/large 任务开始时，**第一个动作**是基于 `.agent/templates/process-[复杂度].md` 创建 `process.md`
+- 复制模板 → 替换占位符 → 将 Step 1 状态设为 🔄
+- 复杂度写入即 **🔒 锁定，不可降级**
+- trivial 任务不创建 `process.md`
 
-medium/large 任务进入 brainstorming 阶段时，**第一个动作**必须是创建 `progress.md`，写入：
+**执行规则（三态系统）：**
+- ⬜ 未开始 → 不得操作 ｜ 🔄 进行中 → 唯一可操作的步骤 ｜ ✅ 已完成 → 不再修改
+- 完成一个步骤后**立即**：① 改为 ✅ 并填写关键记录 → ② 下一步改为 🔄 → ③ 重新读取 process.md
+- **不得跳过** ⬜ 步骤，不得同时有两个 🔄
 
-```markdown
-# Progress Log
+**附属文件（process.md 的补充，不是独立状态源）：**
+- `task_plan.md` — 详细计划（Medium/Large 的 writing-plans 步骤产出）
+- `findings.md` — 调研发现和错误记录（2-Action Rule：每 2 次搜索后保存）
 
-## 当前阶段
-阶段: brainstorming
-状态: 进行中
-复杂度: [medium/large]
-任务概述: [一句话描述用户需求]
-开始时间: [当前时间]
-
-## 参考上下文 (调研与报错)
-> ⚠️ **声明**：以下记录的 AI 调研项目内容及历史报错信息仅供由于中断新开会话时继承作为**参考方向**，**并非 100% 准确**，在使用时需要再次验证。
-- **历史报错**: [强制记录之前发生的报错信息或异常，无则写无]
-- **调研发现**: [强制记录已经调研的项目背景、代码结构探索和初步思路]
-
-## Brainstorm 记录
-[随着讨论推进，持续记录关键结论、决策和待确认项]
-```
-
-**阶段转换时必须立即更新 `progress.md` 的「当前阶段」节：**
-
-| 转换事件 | 必须更新为 |
-|---------|-----------|
-| 开始 brainstorming | `阶段: brainstorming` / `状态: 进行中` |
-| brainstorming 结束，进入 openspec | `阶段: openspec` / `状态: 进行中` |
-| brainstorming 结束，进入 writing-plans | `阶段: writing-plans` / `状态: 进行中` |
-| openspec 完成，进入 executing | `阶段: executing` / `状态: 进行中` |
-| writing-plans 完成，进入 executing | `阶段: executing` / `状态: 进行中` |
-| executing 完成，进入 review | `阶段: review` / `状态: 进行中` |
-| 任务全部完成 | `状态: 已完成` |
-
-**`progress.md` 缺失 = 从头开始**：如果新会话中 `progress.md` 不存在，说明没有进行中的任务，等待用户描述新需求，不得假设任何阶段已完成。
+**收尾归档（最后一步完成后）：**
+1. process.md 最后一步标记 ✅ 并记录完成时间
+2. 全部 planning 文件移到 `.archive/tasks/[时间戳]/`
+3. 执行 auto-learning
 </EXTREMELY-IMPORTANT>
 
-**关键规则：**
-- **Brainstorm 立即建档**：brainstorm 开始的第一个动作就是创建 `progress.md`，防跨会话丢失
-- **阶段转换必更新**：每次阶段转换**立即**更新 `progress.md`，不得延迟
-- **2-Action Rule**：每 2 次搜索/浏览操作后，立即保存发现到 `findings.md`
-- **Read Before Decide**：做重大决策前，重新读取 `task_plan.md`
-- **Log ALL Errors**：每个错误都记录，防止重复犯错
-- **3-Strike Protocol**：同一问题 3 次失败后，升级给用户
-
-> 这些文件替代了 Claude Code 的 `TodoWrite` 工具，且**功能更强**——持久化、可恢复、跨会话。
-> `progress.md` 是 `/go` 工作流的唯一恢复依据，必须始终保持最新状态。
+> `process.md` 是 `/go` 工作流的唯一恢复依据，必须始终保持最新状态。
 
 ### 3.3 经验沉淀 — auto-learning
 
@@ -163,14 +123,12 @@ medium/large 任务进入 brainstorming 阶段时，**第一个动作**必须是
 **核心规则（内嵌，详细指导见 SKILL.md）：**
 - **写入**：medium/large 任务完成验证后，自动提取经验到 `docs/learnings/<date>-<topic>.md`
 - **读取**：medium/large 任务开始时，`list_dir` 扫描 `docs/learnings/`，按需读取相关经验
-- 每条经验独立一个文件，按文件名判断相关性，不全量加载
 
-> 此 skill 替代 `continuous-learning-v2`（依赖 Hooks，目标平台均不支持）。
 > 无需 Hooks 或外部工具，**所有平台通用**。
 
 ### 3.4 技术栈 Skills
 
-> 按需使用 `view_file` 读取对应 SKILL.md 获取编码规范指导。所有 skills 均已启用，只在相关场景下按需读取。
+> 按需使用 `view_file` 读取对应 SKILL.md 获取编码规范指导。
 
 #### Python
 
@@ -227,125 +185,58 @@ medium/large 任务进入 brainstorming 阶段时，**第一个动作**必须是
 | **trivial** | 改动 ≤ 1 个文件，无逻辑变更 | 改变量名、修 typo、调格式、改配置值 |
 | **small** | 改动 ≤ 3 个文件，预计 < 30 分钟 | 修 bug、添加字段、调整样式 |
 | **medium** | 涉及 3+ 文件，预计 1-4 小时 | 新增 API 端点、实现业务模块 |
-| **large** | 涉及核心模块，预计 > 1 天 | 重写认证、数据库迁移、微服务拆分 |
+| **large** | 涉及核心模块，预计 > 1 天，**或**命中下方任一升级信号 | 重写认证、数据库迁移、微服务拆分 |
 
-### 各等级激活的 Skills
+**⚠️ Large 升级信号（命中任一条即升级为 large）：**
+- 引入新外部依赖（架构层面改变）
+- 引入全新能力/子系统（从零构建）
+- 多个交叉关注点（≥ 3 个正交关注点有耦合）
+- 跨模块影响（波及多个现有模块的初始化、配置或接口）
 
-#### Trivial（直接做 → 验证）
+> 文件数量和工时是表层指标。架构级信号才是区分 medium 和 large 的关键。
 
-```
-激活：verification-before-completion（改完验证即可）
-跳过：其他全部
-```
+### 各等级激活 Skills 与流程
 
-#### Small（外科手术模式）
-
-```
-激活：
-  ├─ systematic-debugging             → 遇到 bug 时（view_file 读取 `.agent/skills/systematic-debugging/SKILL.md`）
-  ├─ verification-before-completion   → 改完验证（规则已内嵌，无需读取）
-  ├─ test-driven-development（灵活版）→ 有现成测试就更新，没有不强求
-  └─ 技术栈 patterns（参考）          → view_file 读取对应 SKILL.md
-
-跳过：brainstorming, writing-plans, code-review, planning-with-files
-```
-
-#### Medium（标准模式）
+#### Trivial — 直接做，不创建 process.md
 
 ```
-激活：
-  ├─ brainstorming（精简版）          → view_file 读取 SKILL.md，但遵守 Expert Mode 规则
-  ├─ writing-plans                    → view_file 读取 SKILL.md
-  ├─ executing-plans                  → 分批执行 + 人工检查点
-  ├─ planning-with-files              → 创建 3 个文件（规则已内嵌）
-  ├─ test-driven-development          → 标准 RED-GREEN-REFACTOR
-  ├─ requesting-code-review           → 完成后自审（见第 6 节）
-  ├─ finishing-a-development-branch   → view_file 读取 SKILL.md
-  ├─ systematic-debugging             → 随时待命
-  ├─ verification-before-completion   → 强制验证
-  ├─ security-guidance                → 编写/审查代码时执行安全检查
-  └─ 技术栈 patterns + auto-learning（见 3.3 节）
+激活：verification-before-completion
+流程：直接修改 → 验证 → 完成
+```
 
+#### Small — 基于 `process-small.md` 模板，3 步
+
+```
+激活：systematic-debugging, verification-before-completion, TDD（灵活版）, 技术栈 patterns
+跳过：brainstorming, writing-plans, code-review
+```
+
+#### Medium — 基于 `process-medium.md` 模板，6 步
+
+```
+激活：brainstorming（精简版，遵守 Expert Mode）, writing-plans, executing-plans,
+      TDD, requesting-code-review, finishing-a-development-branch,
+      systematic-debugging, verification-before-completion, security-guidance,
+      技术栈 patterns + auto-learning
 跳过：using-git-worktrees（可选）、OpenSpec
 ```
 
-#### Large（完整模式）
+#### Large — 基于 `process-large.md` 模板，10 步
 
+```
 激活：全部 skills（通过 view_file 按需读取对应 SKILL.md）
+强制会话分割：在 process.md 的「会话分割记录」节记录断点
+```
 
 <EXTREMELY-IMPORTANT>
-**Large 模式 Step 2 — OpenSpec 检测（阶段 1 · brainstorming 之后，必须执行）：**
+**Large Step 3 — OpenSpec 检测（brainstorming 之后，必须执行）：**
 
-在完成 brainstorming（Step 1）后、进入 writing-plans 之前，你**必须**执行以下检测：
-
-1. **检查项目根目录是否存在 `openspec/` 文件夹**（使用 `list_dir` 或 `find` 等工具）
-2. 根据检测结果走对应分支——**不得跳过检测直接进入 writing-plans**：
-
-   - **存在 `openspec/` 目录** → **必须**走 OpenSpec 分支（下方 Path A）
-   - **不存在 `openspec/` 目录** → 走 writing-plans 分支（下方 Path B）
+1. 检查项目根目录是否存在 `openspec/` 文件夹
+2. **存在** → 走 OpenSpec 分支（Step 4 的 Path A）
+3. **不存在** → 走 writing-plans 分支（Step 4 的 Path B）
+4. **不得跳过检测**直接进入 writing-plans
 </EXTREMELY-IMPORTANT>
-
-##### 阶段 1：设计 & 归档
-
-```
-Step 0. 立即创建 progress.md         → 记录「阶段: brainstorming, 状态: 进行中」
-                                        **要求**：强制在文件中记录当前或历史报错及调研结果
-                                        （防止网络中断后新会话丢失阶段上下文）
-
-Step 1. brainstorming               → 苏格拉底式探索，对齐目标和方案
-                                        每轮对话后将结论追加到 progress.md
-
-Step 2. 固化设计（执行上方 OpenSpec 检测后二选一）：
-         ⚠️ 转换前更新 progress.md：「阶段: openspec/writing-plans, 状态: 进行中」
-
-  Path A — openspec/ 目录存在：
-    /opsx:new <change-name>-<YYYYMMDDHHMM>   → 建变更目录
-    （命名规则：功能名 + 时间戳，例如 /opsx:new add-auth-202602251554）
-    /opsx:ff                       → 将 brainstorming 结论固化为文档链：
-                                      proposal（Why）→ specs（What）
-                                      → design（How）→ tasks（实施清单）
-    （复杂需求用 /opsx:continue 逐步生成，可逐步审查）
-    ✅ tasks.md 即后续执行清单，跳过 writing-plans
-
-  Path B — openspec/ 目录不存在：
-    writing-plans                  → 生成 task_plan.md 作为执行清单
-
-Step 3. using-git-worktrees（可选） → 隔离工作区
-```
-
-##### 阶段 2：执行
-
-```
-  ⚠️ 进入执行前更新 progress.md：「阶段: executing, 状态: 进行中」
-  ├─ executing-plans                  → 按 tasks.md / task_plan.md 分批执行
-  ├─ planning-with-files              → 跨天防失忆（3 文件）
-  ├─ test-driven-development          → 严格执行 RED-GREEN-REFACTOR
-  ├─ security-guidance                → 全程安全检查
-  └─ 全部技术栈 patterns
-```
-
-##### 阶段 3：验收归档
-
-```
-  ├─ requesting-code-review           → 完成后双阶段自审（见第 6 节）
-  ├─ auto-learning                    → 自动提取经验到 docs/learnings/
-  ├─ finishing-a-development-branch   → 标准收尾
-  └─ [openspec/ 目录存在时]
-      /opsx:verify                    → 验证实现与 artifacts 一致性（完整性/正确性/一致性）
-      /opsx:archive                   → 归档（sync specs → 移入 archive/YYYY-MM-DD-<name>/）
-```
-
-```
-安全措施：
-  ├─ 关键操作前 git tag               → 灾难恢复点
-  └─ 上下文过大时主动保存状态到 task_plan.md + progress.md
-```
-
-> **OpenSpec artifacts 对应关系：**
-> `proposal` = Why · `specs/` = What · `design.md` = How · `tasks.md` = 执行清单
 > **注意：不使用 `subagent-driven-development`。** 使用你本身的 Agent Mode 机制推进工作往往更精确且易于掌控全貌。
-
----
 
 ---
 
@@ -362,7 +253,6 @@ Step 3. using-git-worktrees（可选） → 隔离工作区
 | UI / 前端样式 | 截图对比 或 手动验证 + 记录到 findings.md |
 | 配置文件修改 | 运行应用验证配置生效 |
 | 一次性脚本 / 原型 | smoke test + 输出验证 |
-| ML 训练脚本 | 指标对比（loss/accuracy 变化） |
 | 数据库迁移 | 迁移前后数据一致性校验 |
 | 基础设施代码 (IaC) | dry-run + plan 输出审查 |
 
@@ -371,125 +261,42 @@ Step 3. using-git-worktrees（可选） → 隔离工作区
 ### 5.2 Expert Mode 快捷通道
 
 当用户在请求中已给出以下信息中的 **3 项以上**时，自动进入 Expert Mode：
-- 技术栈选择
-- 具体实现方案
-- 接口设计
-- 数据结构
+- 技术栈选择、具体实现方案、接口设计、数据结构
 
-**Expert Mode 行为**：
-- ❌ 跳过苏格拉底式逐一提问
-- ✅ 直接确认理解 → 补充遗漏点（如有） → 进入 writing-plans
-- ✅ 将确认浓缩为一次性呈现，而非分段审批
+**Expert Mode 行为**：跳过苏格拉底式逐一提问 → 直接确认理解 → 补充遗漏点 → 进入 writing-plans
 
 ### 5.3 遗留代码库适配
 
-当项目现有测试不通过或无测试时：
-
-1. **不要求全局绿色基线**，改为局部基线
-2. **渐进式引入测试**：新代码必须有测试，旧代码先写 characterization test
-3. **Worktree 创建时**：基线验证改为运行相关子集测试 或 确认构建成功即可
+- **不要求全局绿色基线**，改为局部基线
+- **渐进式引入测试**：新代码必须有测试，旧代码先写 characterization test
 
 ### 5.4 灾难恢复
 
-- 同一问题 3 次修复失败 → 暂停并请求人工介入（与 planning-with-files 的 3-Strike Protocol 对齐）
+- 同一问题 3 次修复失败 → 暂停并请求人工介入（3-Strike Protocol）
 - 关键操作前 → 创建 `git tag` 作为安全回滚点
-- 上下文过大 → 主动保存状态到 `task_plan.md` 和 `progress.md`
+- 上下文过大 → 主动保存状态到 `process.md` 当前步骤的关键记录
 
 ### 5.5 防遗忘防护（Anti-Context-Decay）
 
-> **背景**：即使在 Claude Code + Superpowers 原生环境中，AI 也会在长会话中遗忘或跳过 skill 指令
-> （参见 [superpowers#528](https://github.com/obra/superpowers/issues/528)：跳过代码审查、
-> [#485](https://github.com/obra/superpowers/issues/485)：无视"禁止并行"指令）。
-> Gemini/Antigravity 的上下文窗口在 30-50% 容量时即开始性能下降。
-> 以下防护措施用于对抗此问题。
-
-#### 规则 1：关键指令重复强化
-
-以下规则**无论上下文多长都必须执行**，在此再次强调：
-
 <EXTREMELY-IMPORTANT>
-1. **完成前必须验证**（verification-before-completion）——不验证不算完成
-2. **每次重大决策前重新读取 task_plan.md**——防止偏离计划
-3. **每 2 次搜索/浏览操作后保存发现到 findings.md**——防止信息丢失
-4. **3 次失败后停止并请求人工介入**——不要无限循环
+**无论上下文多长都必须执行：**
+1. **完成前必须验证**（verification-before-completion）
+2. **重大决策前重新读取 process.md / task_plan.md**
+3. **每 2 次搜索/浏览后保存发现到 findings.md**
+4. **3 次失败后停止并请求人工介入**
 </EXTREMELY-IMPORTANT>
 
-#### 规则 2：定期上下文刷新
-
-在 medium/large 任务中，每完成一个**计划阶段**后执行：
-
-```
-1. 重新读取 task_plan.md      → 刷新目标和剩余任务
-2. 更新 progress.md           → 记录刚完成的内容
-3. 检查当前阶段是否有遗漏     → 对照计划逐项确认
-```
-
-> 这比依赖上下文记忆的方式更可靠——即使 Agent 遗忘了之前的会话内容，
-> 只要 `/go` 读取 `progress.md` 就能完全恢复到正确阶段。
-
-#### 规则 3：大任务会话分割
-
-当任务达到 **large** 等级时，按以下节点主动分割会话：
-
-```
-会话 1: brainstorming → openspec/writing-plans → 保存计划到 progress.md + task_plan.md
-         ↓ （用户开新会话，/go 读取 progress.md 恢复）
-会话 2: 读取 progress.md 确认阶段 → executing-plans（任务 1-N）→ 更新 progress.md
-         ↓ （如果未完成，用户开新会话）
-会话 3: 读取 progress.md 确认阶段 → 继续执行 → 代码审查 → finishing-branch
-```
-
-**会话分割时机判断**：
-- 上下文中已有 > 5 轮深度讨论（brainstorming / debugging）
-- 已经完成了一个完整的阶段转换（设计 → 实现 / 实现 → 审查）
-- 感觉到回答质量下降或开始遗漏之前讨论过的细节
+**大任务会话分割**：Large 任务在设计完成、执行完成等自然断点主动分割会话，在 process.md 的「会话分割记录」节记录断点。
 
 ---
-## 6. 代码审查方案
+## 6. 代码审查
 
-Superpowers 原版通过 `Task` tool 调度独立的 reviewer 子代理。
-作为 Cursor Agent，你自身就拥有极强的审阅与修改能力。请在任务完成后，**由你本人**直接执行以下**自审流程**：
+Cursor Agent 自身拥有极强的审阅能力，任务完成后直接执行**自审**：
 
-### Medium 场景：单阶段自审
+- **Medium**（process.md Step 5）：单阶段自审 — 代码质量（DRY/YAGNI/错误处理/命名）+ 安全检查
+- **Large**（process.md Step 8）：双阶段自审 — 先规格合规（对照 task_plan.md 逐项）→ 再代码质量 + 安全
 
-任务完成后，执行以下检查清单：
-
-```
-□ 代码质量自审
-  ├─ 遵循了项目编码规范？
-  ├─ 无重复代码（DRY）？
-  ├─ 无不必要的功能（YAGNI）？
-  ├─ 错误处理完善？
-  ├─ 测试覆盖了核心逻辑？
-  └─ 命名清晰、结构合理？
-```
-
-### Large 场景：双阶段自审
-
-**第 1 阶段：规格合规审查**（先做）
-
-```
-读取 task_plan.md 中的原始计划，逐项对照：
-  □ 每个计划中的任务都已实现？
-  □ 没有多做计划外的功能？
-  □ 没有少做计划中的功能？
-  □ 实现方式与设计文档一致？
-```
-
-**第 2 阶段：代码质量审查**（规格通过后再做）
-
-```
-  □ 代码清洁度：无 dead code、无注释掉的代码
-  □ 测试质量：测试一个行为、命名清晰、用真实代码
-  □ 架构：符合 SOLID、关注点分离
-  □ 安全：按 security-guidance SKILL.md 的检查清单逐项审查
-    （view_file 读取 `.agent/skills/security-guidance/SKILL.md` 中的「安全审查 Checklist」）
-```
-
-> **审查结果分级处理：**
-> - 🔴 **Critical** → 立即修复，修复后重新自审
-> - 🟠 **Important** → 继续前修复
-> - 🟡 **Minor** → 记录到 findings.md，后续处理
+> 审查结果分级：🔴 Critical（立即修复）/ 🟠 Important（继续前修复）/ 🟡 Minor（记录到 findings.md）
 
 ---
 
@@ -504,7 +311,7 @@ Superpowers 原版通过 `Task` tool 调度独立的 reviewer 子代理。
 | ECC 的 planner / tdd-guide agents | 与 Superpowers 流程冲突 |
 | Claude Code Hooks（SessionStart 等） | 已由 `.cursor/rules/` 自动加载机制替代 |
 | Claude Code `Skill` tool | 已由 `view_file` 等读取工具替代 |
-| Claude Code `TodoWrite` | 已由 planning-with-files 的 3 文件替代 |
+| Claude Code `TodoWrite` | 已由 process.md 一体化清单替代 |
 ## 附录：平台适配速查表
 
 | 原 Superpowers 机制 | Claude Code | Cursor Agent Mode |
@@ -532,9 +339,13 @@ Superpowers 原版通过 `Task` tool 调度独立的 reviewer 子代理。
 │   ├── systematic-debugging/
 │   │   └── SKILL.md
 │   └── ...（其他精选 skills）
+├── .agent/templates/
+│   ├── process-small.md           ← Small 模板（3 步）
+│   ├── process-medium.md          ← Medium 模板（6 步）
+│   └── process-large.md           ← Large 模板（10 步）
 ├── .agent/workflows/
 │   └── save-to-kb.md              ← 工作流
-├── task_plan.md                   ← 运行时生成（planning-with-files）
-├── findings.md                    ← 运行时生成
-└── progress.md                    ← 运行时生成
+├── process.md                     ← 运行时生成（基于模板，一体化清单）
+├── task_plan.md                   ← 运行时生成（process.md 附属）
+└── findings.md                    ← 运行时生成（process.md 附属）
 ```

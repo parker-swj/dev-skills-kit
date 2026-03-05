@@ -9,4 +9,4 @@
 | ECC 的 planner / tdd-guide agents | 与 Superpowers 流程冲突 |
 | Claude Code Hooks（SessionStart 等） | Antigravity 不支持，已由 AGENTS.md 内嵌替代 |
 | Claude Code `Skill` tool | Antigravity 不支持，已由 `view_file` 替代 |
-| Claude Code `TodoWrite` | Antigravity 不支持，已由 planning-with-files 的 3 文件替代 |
+| Claude Code `TodoWrite` | Antigravity 不支持，已由 process.md 一体化清单替代 |

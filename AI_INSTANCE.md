@@ -25,6 +25,7 @@ AI AGENT INSTALLATION INSTRUCTIONS
 |------|------|------|
 | `.agent/skills/<name>/SKILL.md` | 安装到目标项目 | 精选的 SKILL.md 文件，按需从上游摘取 |
 | `.agent/workflows/` | 安装到目标项目 | 工作流（`/save-to-kb` 等） |
+| `.agent/templates/` | 安装到目标项目 | process.md 模板（small/medium/large 三套步骤清单） |
 | `.agent/AGENTS.*.md` | 安装到目标项目 | **纯净高级配置**：专为高权限 Agent（Cursor/Codex/OpenCode）优化脱去限制的规则 |
 | `.cursor/rules/` 等 | 安装到目标项目 | **拦截规避器**：强制各目标 Agent (含 `.opencode`, `.codex`) 读取对应的纯净极客配置，跳过受限制基础版 `AGENTS.md` |
 | `AGENTS.md` | 追加/合并到目标项目 | **核心降级配置**：专供 Antigravity 等基础工具链强制读取的降级版要求 |
@@ -110,6 +111,10 @@ your-project/
     │   ├── systematic-debugging/
     │   │   └── SKILL.md
     │   └── ...（共 ~26 个精选 Skills）
+    ├── templates/
+    │   ├── process-small.md         ← Small 任务模板（3 步）
+    │   ├── process-medium.md        ← Medium 任务模板（6 步）
+    │   └── process-large.md         ← Large 任务模板（10 步）
     └── workflows/
         └── save-to-kb.md            ← /save-to-kb 指令
 ```
@@ -125,6 +130,7 @@ AGENTS.md                        ← 自动从 builder 中生成的 Antigravity 
 .agent/
 ├── builder/                     ← 各平台 AGENTS.*.md 独立模块构建拼装脚本与源码
 ├── skills/                      
+├── templates/                   ← process.md 模板（small/medium/large）
 └── workflows/save-to-kb.md      ← 工作流
 github-source/                   ← 上游全量源码（仅供 update-sources.sh 使用）
 ├── superpowers/

@@ -226,6 +226,12 @@ safe_cp_dir "$SCRIPT_DIR/.agent/workflows" "$TARGET/.agent/workflows" ".agent/wo
 echo "   ✅ 完成"
 echo ""
 
+# ── 复制 .agent/templates/ ──────────────────────────────
+echo "📁 复制 .agent/templates/ (process.md 模板) ..."
+safe_cp_dir "$SCRIPT_DIR/.agent/templates" "$TARGET/.agent/templates" ".agent/templates"
+echo "   ✅ 完成"
+echo ""
+
 # ── 构建 AGENTS 配置文件（到临时目录，避免修改仓库文件）────
 BUILD_TMPDIR="$(mktemp -d)"
 trap 'rm -rf "$BUILD_TMPDIR"' EXIT
@@ -390,8 +396,8 @@ TARGET_GITIGNORE="$TARGET/.gitignore"
 GITIGNORE_ENTRIES=(
     ".gemini/|# Antigravity (Google Gemini) AI 运行时 — 会话缓存、知识库（自动生成，勿提交）"
     "task_plan.md|# AI 任务规划草稿（planning-with-files skill 生成，任务结束后可删除）"
-    "findings.md|# AI 调研发现草稿（planning-with-files skill 生成，任务结束后可删除）"
-    "progress.md|# AI 任务进度日志（planning-with-files skill 生成，任务结束后可删除）"
+    "findings.md|# AI 调研发现草稿（process.md 附属，任务结束后可删除）"
+    "process.md|# AI 任务导航清单（基于模板生成，任务结束后归档或删除）"
 )
 
 echo "📄 更新目标项目 .gitignore ..."
