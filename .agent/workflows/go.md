@@ -25,6 +25,10 @@ $ARGUMENTS
      → 找到 🔄 步骤 = 当前恢复点
      → 读取该步骤的「关键记录」+ 「参考上下文」节
      → 如有 task_plan.md / findings.md → 一并读取
+     → 读取关键记录中引用的外部产出文件：
+       • openspec/[变更目录]/ 下的文档（如 Step 涉及 OpenSpec，读取 proposal/specs/design/tasks）
+       • 关键记录中明确引用的 docs/learnings/ 文件
+       • 其他关键记录中记载的产出文件路径
      → 从 🔄 步骤继续执行
 
      特殊情况：
