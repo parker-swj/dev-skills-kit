@@ -118,8 +118,12 @@
 
 **收尾归档（最后一步完成后）：**
 1. process.md 最后一步标记 ✅ 并记录完成时间
-2. 全部 planning 文件移到 `.archive/tasks/[时间戳]/`
-3. 执行 auto-learning
+2. **[如使用 OpenSpec]** 确认 `/opsx:archive` 已完成（sync specs → 移入 archive/YYYY-MM-DD-\<name\>/）
+3. 创建归档目录 `.archive/tasks/[时间戳]/`
+4. **将 `process.md` 移入归档目录**（`mv process.md .archive/tasks/[时间戳]/`）
+5. 将 `task_plan.md`、`findings.md`（若存在）也移入同一归档目录
+6. 执行 auto-learning
+7. ⚠️ **归档完成后，工作区根目录不应残留 `process.md`**。下次 `/go` 将视为无进行中任务
 </EXTREMELY-IMPORTANT>
 
 > `process.md` 是 `/go` 工作流的唯一恢复依据，必须始终保持最新状态。

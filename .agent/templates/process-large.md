@@ -148,16 +148,24 @@
 - 状态: ⬜ 未开始
 - 📎 Skills: `verification-before-completion`（运行验证命令并确认证据后才能声明成功）
 - **关键记录**:
-  - [OpenSpec] `/opsx:verify` 结果: [通过/问题]（验证实现与 artifacts 一致性）
-  - [OpenSpec] `/opsx:archive` 完成: ⬜（sync specs → 移入 archive/YYYY-MM-DD-<name>/）
+  - **[Path A — OpenSpec 专属，跳过此部分如使用 Path B]**:
+    - `/opsx:verify` 结果: [通过/问题]（验证实现与 artifacts 一致性）
+    - ⚠️ **`/opsx:archive` 完成: ⬜**（**必须执行** — sync specs → 移入 archive/YYYY-MM-DD-\<name\>/，等效 CLI: `openspec archive <change-name>`）
   - 分支合并: [...]
 
 ## Step 11: 经验提取 & 归档
 - 状态: ⬜ 未开始
 - 📎 Skills: `auto-learning`（写入经验到 docs/learnings/）
 - **关键记录**:
+  - ⚠️ [OpenSpec] 归档确认: [Path A: `/opsx:archive` 已在 Step 10 完成 / Path B: 不适用]
   - 经验文件: docs/learnings/[date]-[topic].md
-  - 归档路径: .archive/tasks/[时间戳]/
+  - **归档清理**:
+    - 归档目录: .archive/tasks/[时间戳]/
+    - 移入归档的文件:
+      - `process.md` ✅
+      - `task_plan.md`（若存在）✅
+      - `findings.md`（若存在）✅
+    - ⚠️ 归档完成后工作区不应残留 `process.md`
   - 完成时间: [...]
 
 ---

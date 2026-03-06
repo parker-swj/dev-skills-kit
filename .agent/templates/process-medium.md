@@ -101,7 +101,13 @@
 - 📎 Skills: `auto-learning`（写入经验到 docs/learnings/）
 - **关键记录**:
   - 经验提取: [是/否，文件: docs/learnings/...]
-  - 归档路径: .archive/tasks/[时间戳]/
+  - **归档清理**:
+    - 归档目录: .archive/tasks/[时间戳]/
+    - 移入归档的文件:
+      - `process.md` ✅
+      - `task_plan.md`（若存在）✅
+      - `findings.md`（若存在）✅
+    - ⚠️ 归档完成后工作区不应残留 `process.md`
   - 完成时间: [...]
 
 ---
