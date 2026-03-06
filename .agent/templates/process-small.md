@@ -16,12 +16,14 @@
 
 ## Step 2: 执行修改
 - 状态: ⬜ 未开始
+- 📎 Skills: `test-driven-development`（如需写代码则必须先写测试）, `systematic-debugging`（如为修 Bug 则必须先找根本原因）
 - **关键记录**:
   - 改动内容摘要: [...]
   - 遇到的问题: [...]
 
 ## Step 3: 验证 & 完成
 - 状态: ⬜ 未开始
+- 📎 Skills: `verification-before-completion`（必须运行验证命令提供证据）
 - **关键记录**:
   - 验证方式: [运行测试 / 手动验证 / smoke test]
   - 验证结果: [通过/失败]

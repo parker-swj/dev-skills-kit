@@ -118,6 +118,11 @@ safe_cp_dir() {
     local src_dir="$1"
     local dst_dir="$2"
     local label_prefix="${3:-$dst_dir}"
+    
+    if [ ! -d "$src_dir" ]; then
+        return 0
+    fi
+    
     mkdir -p "$dst_dir"
     while IFS= read -r -d '' src_file; do
         local rel="${src_file#$src_dir/}"
@@ -174,8 +179,6 @@ declare -A SKILLS=(
     ["deployment-patterns"]="everything-claude-code/skills/deployment-patterns"
     ["e2e-testing"]="everything-claude-code/skills/e2e-testing"
     ["backend-patterns"]="everything-claude-code/skills/backend-patterns"
-    # Anthropic 官方 Claude Code Plugins
-    ["frontend-design"]="claude-code/plugins/frontend-design/skills/frontend-design"
 )
 
 # ── 复制精选 SKILL.md 到 .agent/skills/ ─────────────────

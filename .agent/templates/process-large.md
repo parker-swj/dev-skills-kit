@@ -11,6 +11,7 @@
 ## Step 1: 初始调研 & 创建 process.md
 - 状态: ⬜ 未开始
 - 开始时间: [...]
+- 📎 Skills: `auto-learning`（读取 docs/learnings/ 中相关经验）
 - **关键记录**:
   - 项目背景: [...]
   - 历史报错: [强制记录，无则写无]
@@ -36,6 +37,7 @@
 ## Step 4: 设计固化
 - 状态: ⬜ 未开始
 - 开始时间: [...]
+- 📎 Skills: `planning-with-files`（创建 task_plan.md / findings.md）
 - **关键记录**:
   - **[Path A — OpenSpec]**:
     - 执行: `/opsx:new <功能名>-<YYYYMMDDHHMM>` → 建变更目录
@@ -62,6 +64,7 @@
 ## Step 6: 分批执行（executing-plans）
 - 状态: ⬜ 未开始
 - 开始时间: [...]
+- 📎 Skills: `planning-with-files`（2-Action Rule、3-Strike Protocol）, `security-guidance`（编码时被动检测）, `systematic-debugging`（如遇 Bug 则强制 4 阶段排查）
 - **关键记录**:
   - 总任务数: [N]
   - 已完成: [ ] / [N]
@@ -72,6 +75,7 @@
 
 ## Step 7: 测试（严格 TDD）
 - 状态: ⬜ 未开始
+- 📎 Skills: `test-driven-development`（RED-GREEN-REFACTOR 循环）
 - **关键记录**:
   - RED-GREEN-REFACTOR 轮次: [N]
   - 测试覆盖范围: [...]
@@ -79,6 +83,7 @@
 
 ## Step 8: 双阶段自审
 - 状态: ⬜ 未开始
+- 📎 Skills: `security-guidance`（安全审查 Checklist）
 - **关键记录**:
   - **阶段 1 — 规格合规**:
     - 每个计划任务都已实现: [是/否]
@@ -94,6 +99,7 @@
 
 ## Step 9: 收尾（finishing-branch）
 - 状态: ⬜ 未开始
+- 📎 Skills: `verification-before-completion`（运行验证命令并确认证据后才能声明成功）
 - **关键记录**:
   - [OpenSpec] `/opsx:verify` 结果: [通过/问题]（验证实现与 artifacts 一致性）
   - [OpenSpec] `/opsx:archive` 完成: ⬜（sync specs → 移入 archive/YYYY-MM-DD-<name>/）
@@ -101,6 +107,7 @@
 
 ## Step 10: 经验提取 & 归档
 - 状态: ⬜ 未开始
+- 📎 Skills: `auto-learning`（写入经验到 docs/learnings/）
 - **关键记录**:
   - 经验文件: docs/learnings/[date]-[topic].md
   - 归档路径: .archive/tasks/[时间戳]/
@@ -108,16 +115,4 @@
 
 ---
 
-## 会话分割记录
-> Large 任务强制分割会话，每个会话记录在此
-
-### 会话 1: [时间]
-- 完成步骤: Step 1-N
-- 断点摘要: [...]
-
-## 参考上下文（中断恢复用）
-> ⚠️ 以下内容仅供中断后新会话参考，需再次验证
-- **历史报错**: [无]
-- **调研发现**: [...]
-- **关键文件**: [涉及的文件列表]
-- **关键决策**: [架构级决策摘要]
+> **中断恢复指引**：新会话恢复时，找到状态为 🔄 的 Step，阅读其及之前所有 ✅ Step 的关键记录即可恢复上下文。
