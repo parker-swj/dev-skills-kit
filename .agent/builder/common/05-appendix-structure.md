@@ -15,8 +15,8 @@
 │   └── ...（其他精选 skills）
 ├── .agent/templates/
 │   ├── process-small.md           ← Small 模板（3 步）
-│   ├── process-medium.md          ← Medium 模板（6 步）
-│   └── process-large.md           ← Large 模板（10 步）
+│   ├── process-medium.md          ← Medium 模板（7 步）
+│   └── process-large.md           ← Large 模板（11 步）
 ├── .agent/workflows/
 │   └── save-to-kb.md              ← 工作流
 ├── process.md                     ← 运行时生成（基于模板，一体化清单）

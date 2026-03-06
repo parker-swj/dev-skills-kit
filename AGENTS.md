@@ -98,9 +98,19 @@
 - trivial 任务不创建 `process.md`
 
 **执行规则（三态系统）：**
-- ⬜ 未开始 → 不得操作 ｜ 🔄 进行中 → 唯一可操作的步骤 ｜ ✅ 已完成 → 不再修改
+- ⬜ 未开始 → 不得操作 ｜ 🔄 进行中 → 唯一可操作的步骤 ｜ ✅ 已完成 → 正常情况下不再修改（回退除外）
 - 完成一个步骤后**立即**：① 改为 ✅ 并填写关键记录 → ② 下一步改为 🔄 → ③ 重新读取 process.md
 - **不得跳过** ⬜ 步骤，不得同时有两个 🔄
+
+**回退规则（人工 Review 触发修订时）：**
+- 🟢 **小修**：Review 步骤保持 🔄，直接在当前步骤内修改，不涉及状态变更
+- 🟡 **中修** / 🔴 **大修**：需要回退到之前的步骤，执行以下状态变更：
+  1. **回退目标步骤** → 设为 🔄（如 Step 4 或 Step 6）
+  2. **回退目标之后、Review 之前的所有步骤** → 重置为 ⬜
+  3. **Review 步骤本身** → 重置为 ⬜
+  4. 在 Review 步骤的「修订轮次记录」中追加本轮修订信息
+  5. 从 🔄 步骤开始重新执行正向流转
+- ⚠️ **回退前的 ✅ 关键记录不得删除**，保留历史记录作为对比参考
 
 **附属文件（process.md 的补充，不是独立状态源）：**
 - `task_plan.md` — 详细计划（Medium/Large 的 writing-plans 步骤产出）
@@ -211,7 +221,7 @@
 跳过：brainstorming, writing-plans, code-review
 ```
 
-#### Medium — 基于 `process-medium.md` 模板，6 步
+#### Medium — 基于 `process-medium.md` 模板，7 步
 
 ```
 激活：brainstorming（精简版，遵守 Expert Mode）, writing-plans, executing-plans,
@@ -221,7 +231,7 @@
 跳过：using-git-worktrees（可选）、OpenSpec
 ```
 
-#### Large — 基于 `process-large.md` 模板，10 步
+#### Large — 基于 `process-large.md` 模板，11 步
 
 ```
 激活：全部 skills（通过 view_file 按需读取对应 SKILL.md）
@@ -342,8 +352,8 @@ Antigravity 不支持独立 reviewer 子代理，使用**自审**替代：
 │   └── ...（其他精选 skills）
 ├── .agent/templates/
 │   ├── process-small.md           ← Small 模板（3 步）
-│   ├── process-medium.md          ← Medium 模板（6 步）
-│   └── process-large.md           ← Large 模板（10 步）
+│   ├── process-medium.md          ← Medium 模板（7 步）
+│   └── process-large.md           ← Large 模板（11 步）
 ├── .agent/workflows/
 │   └── save-to-kb.md              ← 工作流
 ├── process.md                     ← 运行时生成（基于模板，一体化清单）

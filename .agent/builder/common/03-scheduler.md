@@ -38,7 +38,7 @@
 跳过：brainstorming, writing-plans, code-review
 ```
 
-#### Medium — 基于 `process-medium.md` 模板，6 步
+#### Medium — 基于 `process-medium.md` 模板，7 步
 
 ```
 激活：brainstorming（精简版，遵守 Expert Mode）, writing-plans, executing-plans,
@@ -48,7 +48,7 @@
 跳过：using-git-worktrees（可选）、OpenSpec
 ```
 
-#### Large — 基于 `process-large.md` 模板，10 步
+#### Large — 基于 `process-large.md` 模板，11 步
 
 ```
 激活：全部 skills（通过 view_file 按需读取对应 SKILL.md）

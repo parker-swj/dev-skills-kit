@@ -113,8 +113,8 @@ your-project/
     │   └── ...（共 ~26 个精选 Skills）
     ├── templates/
     │   ├── process-small.md         ← Small 任务模板（3 步）
-    │   ├── process-medium.md        ← Medium 任务模板（6 步）
-    │   └── process-large.md         ← Large 任务模板（10 步）
+    │   ├── process-medium.md        ← Medium 任务模板（7 步）
+    │   └── process-large.md         ← Large 任务模板（11 步）
     └── workflows/
         └── save-to-kb.md            ← /save-to-kb 指令
 ```
