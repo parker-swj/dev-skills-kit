@@ -274,6 +274,10 @@ safe_cp_dir "$SCRIPT_DIR/.agent/workflows" "$TARGET/.claude/commands" ".claude/c
 # OpenCode 拦截配置
 safe_cp_dir "$SCRIPT_DIR/.opencode" "$TARGET/.opencode" ".opencode"
 
+# Gemini CLI commands + settings（让 Gemini CLI 识别 AGENTS.md + 注册 slash commands）
+safe_cp_dir "$SCRIPT_DIR/.gemini/commands" "$TARGET/.gemini/commands" ".gemini/commands"
+safe_cp "$SCRIPT_DIR/.gemini/settings.json" "$TARGET/.gemini/settings.json" ".gemini/settings.json"
+
 # 各平台专属高级配置（从构建输出目录读取）
 safe_cp "$(agents_src AGENTS.cursor.md)" "$TARGET/.agent/AGENTS.cursor.md" ".agent/AGENTS.cursor.md"
 safe_cp "$(agents_src AGENTS.codex.md)" "$TARGET/.agent/AGENTS.codex.md" ".agent/AGENTS.codex.md"
@@ -395,9 +399,21 @@ fi
 TARGET_GITIGNORE="$TARGET/.gitignore"
 
 # 定义需要添加到用户项目 .gitignore 的条目
+# 这些目录/文件由 install.sh 生成，属于个人开发环境配置，
+# 多人协作时不应提交到 git，每位开发者应独立运行 install.sh 安装。
 # 格式："条目|说明注释"
 GITIGNORE_ENTRIES=(
-    ".gemini/|# Antigravity (Google Gemini) AI 运行时 — 会话缓存、知识库（自动生成，勿提交）"
+    # ── AI 工具运行时目录（install.sh 安装，个人环境）──
+    ".agent/|# AI Agent Skills/Workflows/Templates（由 install.sh 安装，勿提交）"
+    ".cursor/|# Cursor 拦截规则（由 install.sh 安装，勿提交）"
+    ".claude/|# Claude Code 命令（由 install.sh 安装，勿提交）"
+    ".codex/|# Codex 项目级配置（由 install.sh 安装，勿提交）"
+    ".opencode/|# OpenCode 拦截配置（由 install.sh 安装，勿提交）"
+    ".openspec/|# OpenSpec 运行时缓存（openspec init 生成，勿提交）"
+    ".gemini/|# Gemini CLI 命令与运行时缓存（由 install.sh 安装，勿提交）"
+    # ── AI 根目录配置文件（install.sh 生成，个人环境）──
+    "AGENTS.md|# AI Agent 主配置（由 install.sh 生成，勿提交）"
+    # ── AI 任务临时文件（运行时生成）──
     "task_plan.md|# AI 任务规划草稿（planning-with-files skill 生成，任务结束后可删除）"
     "findings.md|# AI 调研发现草稿（process.md 附属，任务结束后可删除）"
     "process.md|# AI 任务导航清单（基于模板生成，任务结束后归档或删除）"
