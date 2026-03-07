@@ -1,0 +1,2 @@
+description = "放弃当前进行中的任务，清理状态文件，重置为干净状态"
+prompt = "Read the workflow file .agent/workflows/reset.md completely, then follow its instructions exactly to reset the current task state. {{args}}"

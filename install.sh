@@ -357,36 +357,17 @@ else
 fi
 echo ""
 
-# 在目标项目初始化 openspec
+# 在目标项目初始化 openspec（安装 AI 工具指令文件到 .openspec/）
 if command -v openspec &> /dev/null; then
     echo "🔧 在目标项目初始化 OpenSpec (多平台支持)..."
     
-    # 初始化 Antigravity 支持
-    if ( cd "$TARGET" && openspec init --tools antigravity 2>&1 >/dev/null ); then
-        echo "   ✅ OpenSpec Antigravity 支持配置完成"
+    # 使用逗号分隔的 --tools 参数一次性初始化所有平台
+    OPENSPEC_TOOLS="antigravity,cursor,codex,opencode,gemini"
+    if ( cd "$TARGET" && openspec init --tools "$OPENSPEC_TOOLS" >/dev/null 2>&1 ); then
+        echo "   ✅ OpenSpec 多平台支持配置完成 ($OPENSPEC_TOOLS)"
     else
-        echo "   ⚠️  OpenSpec Antigravity 初始化可能失败，可稍后手动检查"
-    fi
-
-    # 初始化 Cursor 支持
-    if ( cd "$TARGET" && openspec init --tools cursor 2>&1 >/dev/null ); then
-        echo "   ✅ OpenSpec Cursor 支持配置完成"
-    else
-        echo "   ⚠️  OpenSpec Cursor 初始化可能失败，可稍后手动检查"
-    fi
-
-    # 初始化 Codex 支持
-    if ( cd "$TARGET" && openspec init --tools codex 2>&1 >/dev/null ); then
-        echo "   ✅ OpenSpec Codex 支持配置完成"
-    else
-        echo "   ⚠️  OpenSpec Codex 初始化可能失败，可稍后手动检查"
-    fi
-
-    # 初始化 OpenCode 支持
-    if ( cd "$TARGET" && openspec init --tools opencode 2>&1 >/dev/null ); then
-        echo "   ✅ OpenSpec OpenCode 支持配置完成"
-    else
-        echo "   ⚠️  OpenSpec OpenCode 初始化可能失败，可稍后手动检查"
+        echo "   ⚠️  OpenSpec 初始化可能失败，请手动执行："
+        echo "      cd $TARGET && openspec init --tools $OPENSPEC_TOOLS"
     fi
     echo ""
 fi

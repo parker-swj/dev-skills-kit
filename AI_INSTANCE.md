@@ -17,17 +17,19 @@ AI AGENT INSTALLATION INSTRUCTIONS
 
 # dev-skills-kit
 
-为 **Antigravity**、**Cursor Agent**、**Codex Agent** 和 **OpenCode Agent** 等平台精选的 Skills 配置集合，可无配置一键同时安装到多端项目。
+为 **Antigravity**、**Cursor Agent**、**Codex Agent**、**OpenCode Agent**、**Claude Code** 和 **Gemini CLI** 等平台精选的 Skills 配置集合，可无配置一键同时安装到多端项目。
 
 ## 分发模型
 
 | 内容 | 位置 | 说明 |
 |------|------|------|
 | `.agent/skills/<name>/SKILL.md` | 安装到目标项目 | 精选的 SKILL.md 文件，按需从上游摘取 |
-| `.agent/workflows/` | 安装到目标项目 | 工作流（`/save-to-kb` 等） |
+| `.agent/workflows/` | 安装到目标项目 | 工作流（`/go`、`/learn`、`/reset`、`/save-to-kb`） |
 | `.agent/templates/` | 安装到目标项目 | process.md 模板（small/medium/large 三套步骤清单） |
 | `.agent/AGENTS.*.md` | 安装到目标项目 | **纯净高级配置**：专为高权限 Agent（Cursor/Codex/OpenCode）优化脱去限制的规则 |
-| `.cursor/rules/` 等 | 安装到目标项目 | **拦截规避器**：强制各目标 Agent (含 `.opencode`, `.codex`) 读取对应的纯净极客配置，跳过受限制基础版 `AGENTS.md` |
+| `.cursor/rules/` 等 | 安装到目标项目 | **拦截规避器**：强制各目标 Agent 读取对应的纯净极客配置，跳过受限制基础版 `AGENTS.md` |
+| `.claude/commands/` | 安装到目标项目 | Claude Code 命令（工作流映射为 slash commands） |
+| `.gemini/` | 安装到目标项目 | Gemini CLI 命令 + settings.json（注册 slash commands + 启用 AGENTS.md） |
 | `AGENTS.md` | 追加/合并到目标项目 | **核心降级配置**：专供 Antigravity 等基础工具链强制读取的降级版要求 |
 | `github-source/` | **保留在本仓库** | 上游全量源码，仅用于 `update-sources.sh` 更新 |
 
@@ -58,14 +60,19 @@ git clone https://github.com/parker-swj/dev-skills-kit.git ~/dev-skills-kit
 > **交互式安全机制**：如果目标项目中已存在同名文件且内容不同，脚本会暂停并询问你是否覆盖。
 > 你可以选择：`[y]`覆盖 / `[n]`跳过 / `[d]`查看差异 / `[a]`全部覆盖 / `[s]`全部跳过。
 
-脚本会自动提供涵盖 **Antigravity / Cursor / Codex / OpenCode** 的四端完美物理兼容配置，执行内容包括：
-- 将精选的 SKILL.md 文件复制到 `.agent/skills/`
+脚本会自动提供涵盖 **Antigravity / Cursor / Codex / OpenCode / Claude Code / Gemini CLI** 的六端完美物理兼容配置，执行内容包括：
+- 将精选的 SKILL.md 文件复制到 `.agent/skills/`（28 个上游精选 + 6 个本地维护 = **~34 个 Skills**）
+- 运行 `build.sh` 从共享模块构建各平台专属 AGENTS 配置文件
 - 将专为高能平台（Cursor/Codex/OpenCode）脱离限制编制的高级纯净配置分发到 `.agent/AGENTS.*.md` 
 - 将各专属平台的独立拦截规则复制到它们所需的配置目录，例如：
   - `.cursor/rules/` (Cursor) 
   - `.codex/` (Codex)
   - `.opencode/` (OpenCode)
+  - `.claude/commands/` (Claude Code)
+  - `.gemini/commands/` + `.gemini/settings.json` (Gemini CLI)
+- 将工作流同步到 Codex 全局 prompts 目录（`$HOME/.codex/prompts/`）
 - 将供基础工具链（如 Antigravity）必备的基础降级核心配置追加到根目录的 `AGENTS.md` 中
+- 自动更新目标项目 `.gitignore`（追加 AI 工具运行时目录和临时文件规则）
 
 ### 3. 开始使用
 
@@ -73,14 +80,14 @@ git clone https://github.com/parker-swj/dev-skills-kit.git ~/dev-skills-kit
 
 ### 4. 搭配使用 OpenSpec（任务规范归档）
 
-OpenSpec 是一个独立的 CLI 工具。**当使用 `install.sh` 时，脚本会自动尝试为你全局安装 `@fission-ai/openspec` 并在目标项目执行 `openspec init`。**
+OpenSpec 是一个独立的 CLI 工具。**当使用 `install.sh` 时，脚本会自动尝试为你全局安装 `@fission-ai/openspec` 并在目标项目执行 `openspec init --tools antigravity,cursor,codex,opencode,gemini` 初始化多平台支持。**
 
 如果你之前安装失败，或者想手动安装，可以执行：
 
 ```bash
 npm install -g @fission-ai/openspec
 cd /path/to/your-project
-openspec init
+openspec init --tools antigravity,cursor,codex,opencode,gemini
 ```
 
 > **何时需要**：`medium` 及以上级别任务（涉及 3+ 文件、预计 1 小时以上）推荐使用。  
@@ -92,31 +99,49 @@ openspec init
 
 ```
 your-project/
+├── AGENTS.md                            ← 专供基础工具链（如 Antigravity）必读的降级版配置
+├── .agent/
+│   ├── AGENTS.cursor.md                 ← 纯净的高阶 Agent (Cursor) 优化配置
+│   ├── AGENTS.codex.md                  ← 纯净的高阶 Agent (Codex) 优化配置
+│   ├── AGENTS.opencode.md               ← 纯净的高阶 Agent (OpenCode) 优化配置
+│   ├── skills/                          ← ~34 个精选 Skills
+│   │   ├── brainstorming/SKILL.md
+│   │   ├── systematic-debugging/SKILL.md
+│   │   ├── test-driven-development/SKILL.md
+│   │   ├── verification-before-completion/SKILL.md
+│   │   ├── planning-with-files/SKILL.md
+│   │   ├── auto-learning/SKILL.md
+│   │   ├── security-guidance/SKILL.md
+│   │   ├── python-patterns/SKILL.md
+│   │   ├── golang-patterns/SKILL.md
+│   │   └── ...
+│   ├── templates/
+│   │   ├── process-small.md             ← Small 任务模板（3 步）
+│   │   ├── process-medium.md            ← Medium 任务模板（7 步）
+│   │   └── process-large.md             ← Large 任务模板（11 步）
+│   └── workflows/
+│       ├── go.md                        ← /go 规则重载
+│       ├── learn.md                     ← /learn 经验提取
+│       ├── reset.md                     ← /reset 任务重置
+│       └── save-to-kb.md               ← /save-to-kb 知识沉淀
 ├── .cursor/rules/
-│   └── dev-skills-kit.mdc            ← 拦截引导 Cursor 读取其专属高级配置
+│   └── dev-skills-kit.mdc              ← 拦截引导 Cursor 读取其专属高级配置
 ├── .codex/
-│   └── agent.rules                  ← 拦截引导 Codex 读取其专属高级配置
+│   └── agent.rules                     ← 拦截引导 Codex 读取其专属高级配置
 ├── .opencode/
-│   └── AGENTS.md                    ← 拦截引导 OpenCode 读取其专属高级配置
-├── AGENTS.md                        ← 专供基础工具链（如 Antigravity）必读的降级版配置
-└── .agent/
-    ├── AGENTS.cursor.md             ← 纯净的高阶 Agent (Cursor) 优化配置 (无降级打补丁语句)
-    ├── AGENTS.codex.md              ← 纯净的高阶 Agent (Codex) 优化配置 (无降级打补丁语句)
-    ├── AGENTS.opencode.md           ← 纯净的高阶 Agent (OpenCode) 优化配置 (使用原生 subagent 等)
-    ├── skills/
-    │   ├── planning-with-files/     ← 状态持久化
-    │   │   └── SKILL.md
-    │   ├── brainstorming/
-    │   │   └── SKILL.md
-    │   ├── systematic-debugging/
-    │   │   └── SKILL.md
-    │   └── ...（共 ~26 个精选 Skills）
-    ├── templates/
-    │   ├── process-small.md         ← Small 任务模板（3 步）
-    │   ├── process-medium.md        ← Medium 任务模板（7 步）
-    │   └── process-large.md         ← Large 任务模板（11 步）
-    └── workflows/
-        └── save-to-kb.md            ← /save-to-kb 指令
+│   └── AGENTS.md                       ← 拦截引导 OpenCode 读取其专属高级配置
+├── .claude/commands/                    ← Claude Code slash commands（从 workflows 映射）
+│   ├── go.md
+│   ├── learn.md
+│   ├── reset.md
+│   └── save-to-kb.md
+└── .gemini/
+    ├── commands/                        ← Gemini CLI slash commands
+    │   ├── go.toml
+    │   ├── learn.toml
+    │   ├── reset.toml
+    │   └── save-to-kb.toml
+    └── settings.json                    ← Gemini CLI 配置（启用 AGENTS.md 自动加载）
 ```
 
 ---
@@ -124,19 +149,39 @@ your-project/
 ## dev-skills-kit 仓库结构
 
 ```
-install.sh                       ← 一键安装脚本
-update-sources.sh                ← 更新上游 Skills 源码
-AGENTS.md                        ← 自动从 builder 中生成的 Antigravity 配置
-.agent/
-├── builder/                     ← 各平台 AGENTS.*.md 独立模块构建拼装脚本与源码
-├── skills/                      
-├── templates/                   ← process.md 模板（small/medium/large）
-└── workflows/save-to-kb.md      ← 工作流
-github-source/                   ← 上游全量源码（仅供 update-sources.sh 使用）
-├── superpowers/
-├── everything-claude-code/
-├── planning-with-files/
-└── OpenSpec/
+dev-skills-kit/
+├── install.sh                           ← 一键安装脚本
+├── update-sources.sh                    ← 更新上游 Skills 源码
+├── AI_INSTANCE.md                       ← AI Agent 安装指引（本文件）
+├── AGENTS.md                            ← 自动从 builder 中生成的 Antigravity 配置
+├── enterprise-developer-skills-guide.md ← 设计决策指南（场景分级方法论）
+├── .agent/
+│   ├── builder/                         ← 模块化构建系统
+│   │   ├── build.sh                     ← 拼装脚本：common + platform → AGENTS.*.md
+│   │   ├── common/                      ← 共享核心组件（Skills 注册表、场景分级器、缺陷补丁）
+│   │   └── platforms/                   ← 平台特有组件（antigravity / cursor / codex / opencode）
+│   ├── AGENTS.cursor.md                 ← build.sh 生成
+│   ├── AGENTS.codex.md                  ← build.sh 生成
+│   ├── AGENTS.opencode.md               ← build.sh 生成
+│   ├── skills/                          ← 本地维护的 Skills（6 个）
+│   │   ├── auto-learning/SKILL.md       ← 零 Hooks 经验沉淀
+│   │   ├── planning-with-files/SKILL.md ← 3 文件状态持久化
+│   │   ├── security-guidance/SKILL.md   ← 改编自 Anthropic Hook 插件
+│   │   ├── systematic-debugging/SKILL.md ← 系统化调试（4 阶段根因分析）
+│   │   ├── test-driven-development/SKILL.md ← TDD 灵活化
+│   │   └── verification-before-completion/SKILL.md ← 完成前强制验证
+│   ├── templates/                       ← process.md 模板（small/medium/large）
+│   └── workflows/                       ← 工作流（/go、/learn、/reset、/save-to-kb）
+├── .cursor/rules/                       ← Cursor 拦截入口（模板）
+├── .codex/                              ← Codex 拦截入口（模板）
+├── .opencode/                           ← OpenCode 拦截入口（模板）
+├── .gemini/                             ← Gemini CLI 配置（commands + settings）
+├── docs/                                ← 分析文档
+└── github-source/                       ← 上游全量源码（仅供 update-sources.sh 使用）
+    ├── superpowers/
+    ├── everything-claude-code/
+    ├── planning-with-files/
+    └── OpenSpec/
 ```
 
 ---

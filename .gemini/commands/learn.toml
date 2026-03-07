@@ -1,0 +1,2 @@
+description = "分析当前会话，提取可复用的经验模式并保存到知识库"
+prompt = "Read the workflow file .agent/workflows/learn.md completely, then follow its instructions exactly to extract reusable experience patterns and save them. {{args}}"
