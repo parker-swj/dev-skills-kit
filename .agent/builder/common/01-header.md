@@ -1,14 +1,6 @@
 ---
 
-## 1. 上下文规则加载
-
-<EXTREMELY-IMPORTANT>
-每次对话开始时，必须先调用 `get_context` MCP 工具（不带参数）加载用户预设的上下文规则，并在整个对话中严格遵守返回的规则。
-</EXTREMELY-IMPORTANT>
-
----
-
-## 2. 核心调度逻辑（内嵌 using-superpowers）
+## 1. 核心调度逻辑（内嵌 using-superpowers）
 
 以下规则直接内嵌于此，无需额外加载。
 

@@ -16,9 +16,23 @@
 
 ## 快速开始
 
-![快速开始三步流程](docs/images/02-quickstart.svg)
+**方式一：让 AI 帮你安装（推荐）**
 
-安装脚本会自动完成：精选 ~27 个上游 Skills → 构建六端配置 → 分发平台拦截规则 → 复制 process.md 模板 → 初始化 OpenSpec → 更新 `.gitignore`。
+克隆本仓库后，把 `AI_INSTANCE.md` 的路径发给你正在使用的 AI Agent，它会自动识别仓库位置并完成安装——无需手动输入任何命令。
+
+**方式二：手动安装**
+
+```bash
+git clone <repo-url> <your-local-path>
+cd <your-local-path>
+./install.sh /path/to/your/project
+```
+
+安装脚本自动完成：精选 ~27 个上游 Skills → 构建六端配置 → 分发平台拦截规则 → 复制 process.md 模板 → 初始化 OpenSpec → 更新 `.gitignore`。
+
+**安装完成后**
+
+打开目标项目，向 AI 发送 `/go`，它会自动加载规则、检查是否有进行中的任务，然后进入工作状态。
 
 ---
 
@@ -74,7 +88,6 @@ AGENTS.md 只定义调度逻辑和分级规则，具体的 Skill 指导以独立
 | `/go` | 重新加载规则，从 `process.md` 恢复中断的任务 |
 | `/learn` | 提取当前会话的可复用经验，保存到知识库 |
 | `/reset` | 清理 `process.md` 等状态文件，重置为干净状态 |
-| `/save-to-kb` | 将知识显式保存并验证到知识库中 |
 
 ---
 
@@ -95,7 +108,7 @@ AGENTS.md 只定义调度逻辑和分级规则，具体的 Skill 指导以独立
 ## 更新上游 Skills
 
 ```bash
-cd ~/dev-skills-kit
+cd <your-local-path>             # dev-skills-kit 所在目录
 ./update-sources.sh              # 拉取最新源码到 github-source/
 ./install.sh /path/to/project    # 重新安装到目标项目（-f 强制覆盖）
 ```
