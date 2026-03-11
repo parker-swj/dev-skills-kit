@@ -101,6 +101,14 @@
 - 状态: ⬜ 未开始
 - 📎 Skills: `auto-learning`（写入经验到 docs/learnings/）
 - **关键记录**:
+  - **⚠️ OpenSpec Archive 强制检测（不可跳过）**:
+    - 检查**目标项目**根目录是否存在 `openspec/` 文件夹: [是/否]
+    - **[是]** → `openspec/changes/` 下是否有**当前任务对应的**未归档变更目录: [是/否/不适用]
+      - 有 → **必须执行** `openspec archive <change-name>`（只归档当前任务的变更） → 完成: ⬜
+      - 无 → 记录「OpenSpec: 当前任务无对应变更」
+      - ⚠️ **不要动其他任务/功能的变更目录**
+    - **[否]** → 记录「OpenSpec: 目标项目无 openspec/ 目录」
+    - ⛔ 严禁跳过此检测直接进入归档清理
   - 经验提取: [是/否，文件: docs/learnings/...]
   - **归档清理**:
     - 归档目录: .archive/tasks/[时间戳]/

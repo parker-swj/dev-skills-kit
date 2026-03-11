@@ -150,16 +150,24 @@
 - 状态: ⬜ 未开始
 - 📎 Skills: `verification-before-completion`（运行验证命令并确认证据后才能声明成功）
 - **关键记录**:
-  - **[Path A — OpenSpec 专属，跳过此部分如使用 Path B]**:
+  - **[Path A — OpenSpec 专属]**（使用 Path B 时跳过此部分）:
     - `/opsx:verify` 结果: [通过/问题]（验证实现与 artifacts 一致性）
-    - ⚠️ **`/opsx:archive` 完成: ⬜**（**必须执行** — sync specs → 移入 archive/YYYY-MM-DD-\<name\>/，等效 CLI: `openspec archive <change-name>`）
+  - **⚠️ OpenSpec Archive 强制检测（不可跳过，无论 Path A 或 Path B）**:
+    - 检查**目标项目**根目录是否存在 `openspec/` 文件夹: [是/否]
+    - **[是]** → `openspec/changes/` 下是否有**当前任务对应的**未归档变更目录: [是/否]
+      - 有 → **必须执行** `openspec archive <change-name>`（等效 `/opsx:archive`） → 完成: ⬜
+        - sync specs → 移入 `openspec/changes/archive/YYYY-MM-DD-<name>/`
+      - 无 → 记录「OpenSpec: 当前任务无对应变更」
+      - ⚠️ **只归档当前任务的变更目录**，不要动其他任务/功能的变更目录
+    - **[否]** → 记录「OpenSpec: 目标项目无 openspec/ 目录」
+    - ⛔ **严禁**在未检测 openspec/ 的情况下直接进入 Step 11
   - 分支合并: [...]
 
 ## Step 11: 经验提取 & 归档
 - 状态: ⬜ 未开始
 - 📎 Skills: `auto-learning`（写入经验到 docs/learnings/）
 - **关键记录**:
-  - ⚠️ [OpenSpec] 归档确认: [Path A: `/opsx:archive` 已在 Step 10 完成 / Path B: 不适用]
+  - ⚠️ OpenSpec 归档确认: [Step 10 已执行 archive / 无 openspec 目录 / 无待归档变更]
   - 经验文件: docs/learnings/[date]-[topic].md
   - **归档清理**:
     - 归档目录: .archive/tasks/[时间戳]/

@@ -33,6 +33,9 @@ $ARGUMENTS
 
      特殊情况：
      - 全部 ✅ → 任务已完成但 process.md 未归档（收尾步骤可能被中断）
+       → ⚠️ 先检查目标项目根目录是否存在 `openspec/` 文件夹
+         → 存在：检查 `openspec/changes/` 下是否有当前任务对应的未归档变更目录 → 有则执行 `openspec archive <change-name>`（只归档当前任务的，不动其他变更目录）
+         → 不存在：跳过
        → 自动执行归档：创建 .archive/tasks/[时间戳]/ → 移入 process.md、task_plan.md、findings.md
        → 告知用户「上一个任务已归档完成，可以描述新需求」
      - 全部 ⬜ → 将 Step 1 设为 🔄，从头开始

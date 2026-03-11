@@ -110,7 +110,14 @@
 
 **收尾归档（最后一步完成后）：**
 1. process.md 最后一步标记 ✅ 并记录完成时间
-2. **[如使用 OpenSpec]** 确认 `/opsx:archive` 已完成（sync specs → 移入 archive/YYYY-MM-DD-\<name\>/）
+2. **⚠️ OpenSpec Archive 强制检测（不可跳过）：**
+   - 检查**目标项目**根目录是否存在 `openspec/` 文件夹
+   - **存在** → 检查 `openspec/changes/` 下是否有**当前任务对应的未归档变更目录**（根据 process.md 关键记录中的变更目录名定位）
+     - 找到当前任务的变更目录 → **必须执行** `openspec archive <change-name>`（等效 `/opsx:archive`），将该变更目录 sync specs → 移入 `openspec/changes/archive/YYYY-MM-DD-<name>/`
+     - 当前任务无对应变更目录 → 记录「OpenSpec: 当前任务无对应变更」，继续
+     - ⚠️ **只归档当前任务的变更目录**，不要动其他任务/功能的变更目录
+   - **不存在** → 记录「OpenSpec: 目标项目无 openspec/ 目录」，跳过
+   - ⛔ **严禁**在未检测 openspec/ 的情况下直接跳到第 3 步
 3. 创建归档目录 `.archive/tasks/[时间戳]/`
 4. **将 `process.md` 移入归档目录**（`mv process.md .archive/tasks/[时间戳]/`）
 5. 将 `task_plan.md`、`findings.md`（若存在）也移入同一归档目录
