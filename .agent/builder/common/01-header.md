@@ -70,3 +70,9 @@
 | using-git-worktrees | `.agent/skills/using-git-worktrees/SKILL.md` | 隔离工作区 |
 | finishing-a-development-branch | `.agent/skills/finishing-a-development-branch/SKILL.md` | 分支收尾 |
 | writing-skills | `.agent/skills/writing-skills/SKILL.md` | 如何创建新 skill |
+
+### 3.1.5 本项目专属维护 Skills
+> **注意**：以下是专供维护 `dev-skills-kit` 本项目基建时使用的自检约束。
+| Skill | view_file 路径 | 简述 |
+|-------|---------------|------|
+| dev-skills-kit-check | `.agent/skills/dev-skills-kit-check/SKILL.md` | 项目级变更自检清单 |

@@ -392,6 +392,7 @@ GITIGNORE_ENTRIES=(
     ".opencode/|# OpenCode 拦截配置（由 install.sh 安装，勿提交）"
     ".openspec/|# OpenSpec 运行时缓存（openspec init 生成，勿提交）"
     ".gemini/|# Gemini CLI 命令与运行时缓存（由 install.sh 安装，勿提交）"
+    ".worktrees/|# Git Worktree 并发工作区缓存（由 /concurrency 生成，勿提交）"
     # ── AI 根目录配置文件（install.sh 生成，个人环境）──
     "AGENTS.md|# AI Agent 主配置（由 install.sh 生成，勿提交）"
     # ── AI 任务临时文件（运行时生成）──

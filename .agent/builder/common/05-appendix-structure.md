@@ -18,6 +18,7 @@
 │   ├── process-medium.md          ← Medium 模板（7 步）
 │   └── process-large.md           ← Large 模板（11 步）
 ├── .agent/workflows/
+│   ├── concurrency.md             ← /concurrency 工作流
 │   └── save-to-kb.md              ← 工作流
 ├── process.md                     ← 运行时生成（基于模板，一体化清单）
 ├── task_plan.md                   ← 运行时生成（process.md 附属）

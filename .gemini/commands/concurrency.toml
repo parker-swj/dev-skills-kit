@@ -1,0 +1,2 @@
+description = "评估 OpenSpec 变更并使用 git worktree 创建可并发的独立的开发环境"
+prompt = "Read the workflow file .agent/workflows/concurrency.md completely, then follow its instructions exactly to evaluate OpenSpec changes and create concurrent worktrees. {{args}}"
