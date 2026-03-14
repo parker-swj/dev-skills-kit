@@ -45,12 +45,38 @@ $ARGUMENTS
 3. **同步 AI 工具与运行环境依赖**（重要）：
    由于 `.gitignore` 会忽略诸多 AI 开发工具的本地配置文件，使用 `git worktree` 时，这些隐藏文件**不会**被带入新目录，导致 AI 的技能与规则在新建目录中失效。
    因此，新目录创建后，立即**将根目录下的依赖项手工复制给每个新分支的归属目录**。
-   建议使用类似下方的遍历命令复制相关配置到 `.worktrees/concurrency-<change-name>`（视实际使用情况处理不存在的文件目录而不报错）：
+
+   **⚠️ 注意：`openspec` 需要特殊处理** — 不能直接整体复制，否则会把其他变更的任务文件带入工作区，破坏隔离性。应当只复制 `openspec` 的基础结构（如 `specs/`、配置文件等）和**当前工作区对应的那一个变更目录**。
+
+   建议使用类似下方的命令序列（针对每个 `<change-name>`）：
    ```bash
-   cp -r .agent .cursor .opencode .gemini .claude .codex .openspec AGENTS.md .worktrees/concurrency-<change-name>/ 2>/dev/null || true
+   # 1) 复制 AI 工具配置（不含 openspec）
+   cp -r .agent .cursor .opencode .gemini .claude .codex AGENTS.md .worktrees/concurrency-<change-name>/ 2>/dev/null || true
+
+   # 2) 复制 openspec 基础结构（specs、配置等），但排除 changes/ 目录
+   rsync -a --exclude='changes/' openspec/ .worktrees/concurrency-<change-name>/openspec/ 2>/dev/null || true
+
+   # 3) 仅复制当前变更对应的 change 目录
+   mkdir -p .worktrees/concurrency-<change-name>/openspec/changes/
+   cp -r openspec/changes/<change-name> .worktrees/concurrency-<change-name>/openspec/changes/ 2>/dev/null || true
    ```
 
-### 4. 总结与开发者人工指引
+### 4. 清理主目录中已分配的变更
+
+为了避免主目录的 AI Agent 误读到已分配给 worktree 的 change，需要将已分配的变更目录从主目录的 `openspec/changes/` 中**移走**。
+
+使用 `mv` 将其移入一个 `.dispatched/` 暂存区（而非直接删除，以便需要时可以恢复）：
+
+```bash
+mkdir -p openspec/changes/.dispatched/
+mv openspec/changes/<change-name> openspec/changes/.dispatched/ 2>/dev/null || true
+```
+
+> 💡 使用 `.dispatched/` 而非直接删除，好处是：
+> - 需要回退时可以轻松恢复（`mv openspec/changes/.dispatched/<change-name> openspec/changes/`）
+> - 以 `.` 开头的目录名会被 OpenSpec 扫描自动忽略，不影响正常工作流
+
+### 5. 总结与开发者人工指引
 
 完成环境配置后，向用户输出环境说明以及后续的人工操作指南。
 
@@ -60,11 +86,14 @@ $ARGUMENTS
 你可以同时打开多个编辑器在各自独立的目录开发：
 - `cd .worktrees/concurrency-<change-name>`
 
+> 已分配的变更已从主目录移至 `openspec/changes/.dispatched/`，主目录不会再误触这些任务。
+
 **后续手工合并开发流程指南**：
 1. 分别在各个工作树下开展 TDD、修改代码等工作。
 2. 独立针对各自的 `concurrency/<change-name>` 分支进行 `git commit`。
 3. 这些并行特性实现完成后，**用户请手动**从主根目录将特性分支合并回主线。
 4. 合并结束不再需要时，可以通过在主目录执行 `git worktree remove .worktrees/concurrency-<change-name>` 和 `git branch -d concurrency/<change-name>` 来安全地进行销毁清理。
+5. 清理 `.dispatched/`：合并完成后删除 `openspec/changes/.dispatched/<change-name>`。
 ```
 
 <EXTREMELY-IMPORTANT>
