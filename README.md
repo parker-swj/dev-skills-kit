@@ -151,6 +151,16 @@ dev-skills-kit 对 Superpowers 的已知缺陷提供了 4 个内置补丁：
 
 ---
 
+## 使用心得
+
+> [!WARNING]
+> **不要使用 AI 工具的 Plan 模式。** 许多 AI 编程工具（如 Cursor、Claude Code 等）提供了内置的 Plan 模式，启用后工具会强制使用自己的 workflow，覆盖掉 dev-skills-kit 的 process.md 流程。请始终使用**普通模式（Normal / Ask 模式）**，让 `/go` 中定义的场景分级和 process.md 来驱动工作流。
+
+> [!TIP]
+> **上下文变长时，主动发送 `/go` 刷新 AI 记忆。** 长会话中 AI 会逐渐遗忘规则（Context Decay）。当你感觉 AI 开始跳过步骤、不再遵守流程、或回答质量下降时，直接发送 `/go`——它会重新加载完整规则、读取 `process.md` 当前状态，从断点继续。这比开新会话更高效，因为无需重复描述需求。
+
+---
+
 ## 更新上游 Skills
 
 ```bash
