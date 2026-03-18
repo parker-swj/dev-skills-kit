@@ -1,0 +1,59 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4A90D9', 'primaryTextColor': '#fff', 'lineColor': '#5C6370'}}}%%
+
+graph LR
+    subgraph source["📦 dev-skills-kit 仓库"]
+        GS["github-source/<br/>上游源码"]
+        LS[".agent/skills/<br/>本地维护 Skills"]
+        WF[".agent/workflows/<br/>go, reset, learn..."]
+        TM[".agent/templates/<br/>process-*.md"]
+        GC[".gemini/commands/<br/>Gemini 专用"]
+    end
+
+    INSTALL["🔧 install.sh<br/>一键安装"] 
+
+    GS --> INSTALL
+    LS --> INSTALL
+    WF --> INSTALL
+    TM --> INSTALL
+    GC --> INSTALL
+
+    subgraph target["🎯 目标项目"]
+        direction TB
+        TA[".agent/skills/<br/>~33 精选 SKILL.md"]
+        TB[".agent/workflows/<br/>go, reset, learn..."]
+        TC[".agent/templates/<br/>process 模板"]
+        
+        subgraph platforms["六端拦截配置"]
+            P1[".cursor/commands/"]
+            P2[".claude/commands/"]
+            P3[".opencode/commands/"]
+            P4[".gemini/commands/"]
+            P5["~/.codex/prompts/"]
+            P6["Antigravity 原生"]
+        end
+        
+        TD[".gitignore 更新"]
+        TE["OpenSpec 初始化"]
+    end
+
+    INSTALL --> TA
+    INSTALL --> TB
+    INSTALL --> TC
+    INSTALL --> platforms
+    INSTALL --> TD
+    INSTALL --> TE
+
+    style source fill:#2C313A,stroke:#528BFF,color:#ABB2BF
+    style target fill:#2C313A,stroke:#98C379,color:#ABB2BF
+    style platforms fill:#1E2127,stroke:#E5C07B,color:#ABB2BF
+    style INSTALL fill:#E5C07B,color:#282C34
+    style GS fill:#528BFF,color:#fff
+    style LS fill:#528BFF,color:#fff
+    style WF fill:#528BFF,color:#fff
+    style TM fill:#528BFF,color:#fff
+    style GC fill:#528BFF,color:#fff
+    style TA fill:#98C379,color:#282C34
+    style TB fill:#98C379,color:#282C34
+    style TC fill:#98C379,color:#282C34
+    style TD fill:#98C379,color:#282C34
+    style TE fill:#98C379,color:#282C34

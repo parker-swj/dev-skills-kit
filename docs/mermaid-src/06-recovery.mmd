@@ -1,0 +1,38 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4A90D9', 'primaryTextColor': '#fff', 'lineColor': '#5C6370'}}}%%
+
+sequenceDiagram
+    participant U as 👤 用户
+    participant AI as 🤖 AI Agent
+    participant PM as 📄 process.md
+    participant SK as 📂 SKILL.md
+
+    Note over U,SK: 首次启动 或 新任务
+    U->>AI: /go
+    AI->>PM: 检查 process.md 存在？
+    PM-->>AI: ❌ 不存在
+    AI-->>U: 等待新需求描述
+
+    U->>AI: 描述新需求
+    AI->>AI: 评估复杂度等级
+    AI->>PM: 从模板创建 process.md<br/>Step 1 → 🔄
+    AI->>SK: view_file 读取需要的 SKILL.md
+
+    Note over U,SK: 执行中...
+    AI->>PM: Step 1 → ✅<br/>Step 2 → 🔄
+
+    Note over U,SK: ⚡ 中断（会话结束 / 崩溃 / 手动切换）
+
+    Note over U,SK: 恢复
+    U->>AI: /go
+    AI->>PM: 检查 process.md 存在？
+    PM-->>AI: ✅ 存在，Step 2 = 🔄
+    AI->>PM: 读取 🔄 步骤的关键记录
+    AI->>AI: 读取 task_plan.md / findings.md
+    AI-->>U: 📍 已恢复到 Step 2<br/>继续执行...
+
+    Note over U,SK: 任务完成
+    AI->>PM: 最后一步 → ✅
+    AI->>AI: OpenSpec 归档检测
+    AI->>AI: 移入 .archive/tasks/
+    AI->>AI: 执行 auto-learning
+    AI-->>U: ✅ 任务已完成并归档

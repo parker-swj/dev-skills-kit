@@ -1,0 +1,39 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4A90D9', 'primaryTextColor': '#fff', 'lineColor': '#5C6370'}}}%%
+
+graph TB
+    ROOT["📁 目标项目根目录"]
+
+    ROOT --> AGENT[".agent/"]
+    ROOT --> CURSOR[".cursor/commands/"]
+    ROOT --> CLAUDE[".claude/commands/"]
+    ROOT --> OPENCODE[".opencode/commands/"]
+    ROOT --> GEMINI[".gemini/commands/"]
+    ROOT --> OPENSPEC[".openspec/"]
+    ROOT --> GITIGNORE[".gitignore ← 自动更新"]
+    ROOT --> PROCESS["process.md ← 运行时生成"]
+    ROOT --> TASKPLAN["task_plan.md ← 运行时生成"]
+    ROOT --> FINDINGS["findings.md ← 运行时生成"]
+
+    AGENT --> SKILLS[".agent/skills/<br/>~33 个 SKILL.md"]
+    AGENT --> WORKFLOWS[".agent/workflows/<br/>go.md, reset.md,<br/>learn.md, concurrency.md,<br/>save-to-kb.md"]
+    AGENT --> TEMPLATES[".agent/templates/<br/>process-small.md<br/>process-medium.md<br/>process-large.md"]
+
+    SKILLS --> SK1["brainstorming/"]
+    SKILLS --> SK2["systematic-debugging/"]
+    SKILLS --> SK3["auto-learning/"]
+    SKILLS --> SKN["..."]
+
+    style ROOT fill:#528BFF,color:#fff
+    style AGENT fill:#98C379,color:#282C34
+    style SKILLS fill:#61AFEF,color:#282C34
+    style WORKFLOWS fill:#61AFEF,color:#282C34
+    style TEMPLATES fill:#61AFEF,color:#282C34
+    style CURSOR fill:#E5C07B,color:#282C34
+    style CLAUDE fill:#E5C07B,color:#282C34
+    style OPENCODE fill:#E5C07B,color:#282C34
+    style GEMINI fill:#E5C07B,color:#282C34
+    style OPENSPEC fill:#C678DD,color:#fff
+    style GITIGNORE fill:#56B6C2,color:#282C34
+    style PROCESS fill:#E06C75,color:#fff
+    style TASKPLAN fill:#E06C75,color:#fff
+    style FINDINGS fill:#E06C75,color:#fff

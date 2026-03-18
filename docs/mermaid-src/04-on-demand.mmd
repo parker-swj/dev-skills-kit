@@ -1,0 +1,38 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4A90D9', 'primaryTextColor': '#fff', 'lineColor': '#5C6370'}}}%%
+
+graph TB
+    USER["👤 用户发送 /go"] --> GO["/go workflow<br/>规则加载 + 状态恢复"]
+
+    GO --> RULES["📋 内嵌核心规则<br/>• 场景分级调度器<br/>• 缺陷补丁<br/>• 防遗忘防护"]
+
+    GO --> RESUME{"📄 process.md<br/>存在？"}
+
+    RESUME -->|"✅ 存在"| RESTORE["恢复到 🔄 步骤<br/>读取关键记录"]
+    RESUME -->|"❌ 不存在"| NEW["等待新需求"]
+
+    RESTORE --> DISPATCH["按复杂度等级<br/>调度 Skills"]
+    NEW --> ASSESS["评估复杂度<br/>创建 process.md"]
+    ASSESS --> DISPATCH
+
+    DISPATCH --> NEEDSKILL{"需要<br/>详细指导？"}
+    NEEDSKILL -->|"是"| LOAD["view_file 读取<br/>对应 SKILL.md"]
+    NEEDSKILL -->|"否"| EXEC["执行任务"]
+    LOAD --> EXEC
+
+    subgraph skills_repo["📂 .agent/skills/ — 按需读取"]
+        SK1["brainstorming/<br/>SKILL.md"]
+        SK2["systematic-debugging/<br/>SKILL.md"]
+        SK3["test-driven-development/<br/>SKILL.md"]
+        SK4["planning-with-files/<br/>SKILL.md"]
+        SKN["...其他 Skills"]
+    end
+
+    LOAD --> skills_repo
+
+    style USER fill:#528BFF,color:#fff
+    style GO fill:#E5C07B,color:#282C34
+    style RULES fill:#98C379,color:#282C34
+    style DISPATCH fill:#C678DD,color:#fff
+    style LOAD fill:#61AFEF,color:#282C34
+    style EXEC fill:#98C379,color:#282C34
+    style skills_repo fill:#1E2127,stroke:#61AFEF,color:#ABB2BF

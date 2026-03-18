@@ -1,0 +1,54 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4A90D9', 'primaryTextColor': '#fff', 'lineColor': '#5C6370', 'secondaryColor': '#61AFEF'}}}%%
+
+graph TB
+    START["🚀 接到任务"] --> ASSESS{"📏 评估复杂度"}
+
+    ASSESS -->|"≤1 文件<br/>无逻辑变更"| T["<b>Trivial</b><br/>直接做 → 验证"]
+    ASSESS -->|"≤3 文件<br/><30 分钟"| S["<b>Small</b><br/>process-small.md<br/>3 步"]
+    ASSESS -->|"3+ 文件<br/>1-4 小时"| M["<b>Medium</b><br/>process-medium.md<br/>7 步"]
+    ASSESS -->|"核心模块<br/>>1 天"| L["<b>Large</b><br/>process-large.md<br/>11 步"]
+
+    subgraph trivial_flow["Trivial — 无 process.md"]
+        T --> T1["修改 → 验证 → 完成"]
+    end
+
+    subgraph small_flow["Small — 3 步"]
+        S --> S1["⬜→🔄 分析 & 实现"]
+        S1 --> S2["⬜→🔄 验证"]
+        S2 --> S3["⬜→🔄 收尾归档"]
+    end
+
+    subgraph medium_flow["Medium — 7 步"]
+        M --> M1["1. 分析需求"]
+        M1 --> M2["2. 写计划 ⏳"]
+        M2 --> M3["3. 实现"]
+        M3 --> M4["4. 测试"]
+        M4 --> M5["5. 自审"]
+        M5 --> M6["6. 人工 Review ⏳"]
+        M6 --> M7["7. 收尾归档"]
+    end
+
+    subgraph large_flow["Large — 11 步"]
+        L --> L1["1. 分析"]
+        L1 --> L2["2. Brainstorm"]
+        L2 --> L3["3. OpenSpec 检测"]
+        L3 --> L4["4. 设计 ⏳"]
+        L4 --> L5["5. 计划"]
+        L5 --> L6["6. 分批执行 ⏳"]
+        L6 --> L7["7. 测试"]
+        L7 --> L8["8. 双阶段自审"]
+        L8 --> L9["9. 人工 Review ⏳"]
+        L9 --> L10["10. 合并"]
+        L10 --> L11["11. 收尾归档"]
+    end
+
+    style START fill:#528BFF,color:#fff
+    style ASSESS fill:#E5C07B,color:#282C34
+    style T fill:#56B6C2,color:#282C34
+    style S fill:#61AFEF,color:#282C34
+    style M fill:#C678DD,color:#fff
+    style L fill:#E06C75,color:#fff
+    style trivial_flow fill:#1E2127,stroke:#56B6C2,color:#ABB2BF
+    style small_flow fill:#1E2127,stroke:#61AFEF,color:#ABB2BF
+    style medium_flow fill:#1E2127,stroke:#C678DD,color:#ABB2BF
+    style large_flow fill:#1E2127,stroke:#E06C75,color:#ABB2BF

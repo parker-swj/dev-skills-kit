@@ -1,0 +1,54 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4A90D9', 'primaryTextColor': '#fff', 'primaryBorderColor': '#3A7BC8', 'lineColor': '#5C6370', 'secondaryColor': '#61AFEF', 'tertiaryColor': '#E5C07B', 'noteTextColor': '#282C34', 'noteBkgColor': '#E5C07B'}}}%%
+
+graph LR
+    subgraph upstream["🌐 上游开源项目"]
+        SP["obra/superpowers<br/>方法论框架<br/>14 Skills"]
+        ECC["everything-claude-code<br/>技术栈 Skills<br/>~14 Skills"]
+        PF["planning-with-files<br/>状态持久化"]
+        OS["OpenSpec<br/>规范驱动"]
+        AC["Anthropic 官方<br/>安全插件"]
+    end
+
+    subgraph purify["🔬 提纯过程"]
+        P1["去掉教条<br/>（TDD 灵活化）"]
+        P2["保留精华<br/>（方法论骨架）"]
+        P3["补上缺失<br/>（4 缺陷补丁）"]
+        P4["场景分级<br/>（trivial→large）"]
+    end
+
+    subgraph kit["📦 dev-skills-kit"]
+        K1["~33 精选 Skills"]
+        K2["process.md 模板系统"]
+        K3["6 平台自动适配"]
+        K4["/go 一键激活"]
+    end
+
+    SP --> P2
+    ECC --> P2
+    PF --> P2
+    OS --> P2
+    AC --> P2
+    P1 --> K1
+    P2 --> K1
+    P3 --> K2
+    P4 --> K3
+    K1 --> K4
+    K2 --> K4
+    K3 --> K4
+
+    style upstream fill:#2C313A,stroke:#528BFF,color:#ABB2BF
+    style purify fill:#2C313A,stroke:#E5C07B,color:#ABB2BF
+    style kit fill:#2C313A,stroke:#98C379,color:#ABB2BF
+    style SP fill:#528BFF,color:#fff
+    style ECC fill:#528BFF,color:#fff
+    style PF fill:#528BFF,color:#fff
+    style OS fill:#528BFF,color:#fff
+    style AC fill:#528BFF,color:#fff
+    style P1 fill:#E5C07B,color:#282C34
+    style P2 fill:#E5C07B,color:#282C34
+    style P3 fill:#E5C07B,color:#282C34
+    style P4 fill:#E5C07B,color:#282C34
+    style K1 fill:#98C379,color:#282C34
+    style K2 fill:#98C379,color:#282C34
+    style K3 fill:#98C379,color:#282C34
+    style K4 fill:#98C379,color:#282C34

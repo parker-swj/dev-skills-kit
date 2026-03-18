@@ -1,0 +1,38 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4A90D9', 'primaryTextColor': '#fff', 'lineColor': '#5C6370'}}}%%
+
+graph TB
+    GO["⚡ /go 命令"] --> ENGINE["规则引擎<br/>.agent/workflows/go.md"]
+
+    subgraph platforms["六端平台适配"]
+        direction LR
+        AG["🟣 Antigravity<br/>.agent/workflows/"]
+        CU["🔵 Cursor<br/>.cursor/commands/"]
+        CX["🟠 Codex<br/>~/.codex/prompts/"]
+        OC["🟢 OpenCode<br/>.opencode/commands/"]
+        GE["🔴 Gemini CLI<br/>.gemini/commands/"]
+        CL["⚪ Claude Code<br/>.claude/commands/"]
+    end
+
+    AG --> ENGINE
+    CU --> ENGINE
+    CX --> ENGINE
+    OC --> ENGINE
+    GE --> ENGINE
+    CL --> ENGINE
+
+    ENGINE --> SKILLS["📂 .agent/skills/<br/>统一 Skills 目录"]
+    ENGINE --> TEMPLATES["📋 .agent/templates/<br/>统一模板"]
+    ENGINE --> PROCESS["📄 process.md<br/>统一状态管理"]
+
+    style GO fill:#E5C07B,color:#282C34
+    style ENGINE fill:#528BFF,color:#fff
+    style platforms fill:#1E2127,stroke:#528BFF,color:#ABB2BF
+    style AG fill:#C678DD,color:#fff
+    style CU fill:#61AFEF,color:#282C34
+    style CX fill:#E5C07B,color:#282C34
+    style OC fill:#98C379,color:#282C34
+    style GE fill:#E06C75,color:#fff
+    style CL fill:#ABB2BF,color:#282C34
+    style SKILLS fill:#98C379,color:#282C34
+    style TEMPLATES fill:#98C379,color:#282C34
+    style PROCESS fill:#98C379,color:#282C34
