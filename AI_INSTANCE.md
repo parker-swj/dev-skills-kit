@@ -1,48 +1,39 @@
 <!--
-AI AGENT INSTALLATION INSTRUCTIONS
-===================================
-> **本文件由用户提供给你（AI Agent），用于将 dev-skills-kit 安装到用户的目标项目。**
-> 本文件所在目录即为 dev-skills-kit 仓库根目录，用户已将其克隆到本地。
-1. 确定 dev-skills-kit 仓库路径：本文件（AI_INSTANCE.md）所在目录即为 dev-skills-kit 根目录
-2. 确定目标项目路径：用户当前工作的项目目录（询问用户或根据上下文判断）
-3. 执行安装/更新：
-   - 首次安装：运行 <dev-skills-kit根目录>/install.sh <目标项目路径>
-   - 更新（已安装过）：运行 <dev-skills-kit根目录>/install.sh -f <目标项目路径>
-     （-f 标志强制覆盖旧文件，确保最新配置生效。不加 -f 会弹出交互式提示，无法自动完成）
-4. 如果用户说"安装"且目标项目已存在 .agent/skills/ 目录，说明是更新场景，请使用 -f 标志
+⚠️ AI AGENT：你的唯一任务是运行 install.sh 脚本。不要分析、不要检查环境、不要验证前置条件。
 
-注意：如果用户未指定目标项目路径，请先询问。
-安装完成后所有技术栈 Skills 均已启用，AI 会按需读取对应 SKILL.md，无需额外配置。
+1. REPO_DIR = 本文件所在目录的绝对路径
+2. TARGET_DIR = 用户当前打开的项目根目录（即 cwd 或 workspace root）。如果无法确定，则询问用户。
+3. 立即执行：bash $REPO_DIR/install.sh $TARGET_DIR
+4. 执行完毕后告知用户：发送 /go 即可开始工作
 -->
 
 # dev-skills-kit — AI Agent 安装指引
 
 > 本文件专供 AI Agent 阅读。项目介绍请参考 [README.md](README.md)。
 
-## 安装 / 更新
+## 你要做的事（唯一动作）
 
-1. **确定仓库路径**：本文件（`AI_INSTANCE.md`）所在目录即为 dev-skills-kit 根目录。
-2. **确定目标项目路径**：用户当前工作的项目目录。如果用户未指定，请先询问。
-3. **执行命令**：
+**运行安装脚本，仅此一步。** 不需要检查任何前置条件，脚本会自行处理。
 
 ```bash
-# 首次安装
-<dev-skills-kit根目录>/install.sh <目标项目路径>
-
-# 更新（目标项目已安装过）——必须加 -f，否则会进入交互式提示
-<dev-skills-kit根目录>/install.sh -f <目标项目路径>
+bash "$REPO_DIR/install.sh" "$TARGET_DIR"
 ```
 
-4. **判断首次还是更新**：如果目标项目已存在 `.agent/skills/` 目录，视为更新场景，请使用 `-f` 标志。
+### 变量确定规则
+
+| 变量 | 值 | 说明 |
+|------|----|------|
+| `REPO_DIR` | 本文件 (`AI_INSTANCE.md`) 所在目录的绝对路径 | 即 dev-skills-kit 仓库根目录 |
+| `TARGET_DIR` | 用户当前打开的项目根目录 | 即你的 cwd 或 workspace root。**仅当无法确定时才询问用户。** |
+
+> [!NOTE]
+> 不要加 `-f` 标志。脚本默认以交互模式运行，遇到文件冲突时会询问用户。
+> 仅当用户明确要求"强制覆盖"时，才使用 `bash "$REPO_DIR/install.sh" -f "$TARGET_DIR"`。
+
+## 更新（同一命令）
+
+重新运行上面的安装命令即可完成更新，脚本是幂等的。交互模式下遇到用户修改过的文件会逐一确认，不会静默覆盖。
 
 ## 安装完成后
 
 告知用户：发送 `/go` 即可激活规则并进入工作状态。
-
-## 更新上游 Skills
-
-```bash
-cd <dev-skills-kit根目录>
-./update-sources.sh                       # 拉取上游最新版本
-./install.sh -f <目标项目路径>              # 重新安装到目标项目
-```

@@ -53,3 +53,10 @@ dist/
 build/
 tmp/
 temp/
+
+# ── AGENTS 构建产物（由 .agent/builder/build.sh 生成，勿提交）──
+# 安装时按需生成到目标项目，源码仓库不保留构建后的完整文件
+AGENTS.md
+AGENTS.*.md
+.agent/AGENTS.*.md
+

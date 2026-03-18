@@ -6,9 +6,10 @@
 #       ./install.sh -f ~/my-project  （强制覆盖，不提示）
 #
 # 安装内容：
-#   - .agent/skills/   精选 SKILL.md 文件（从 github-source/ 摘取，相对路径引用）
-#   - .agent/workflows/ 工作流（save-to-kb 等）
-#   - AGENTS.md 片段   追加到目标项目的 AGENTS.md（不覆盖）
+#   - .agent/skills/     精选 SKILL.md 文件（从 github-source/ 摘取，相对路径引用）
+#   - .agent/workflows/  工作流（go, reset, learn 等）
+#   - .agent/templates/  process.md 模板（small/medium/large）
+#   - 各平台 /go 命令入口（.cursor/commands/, .claude/commands/ 等）
 #
 # github-source/ 保留在本仓库，不复制到目标项目。
 
@@ -130,6 +131,116 @@ safe_cp_dir() {
     done < <(find "$src_dir" -type f -print0 | sort -z)
 }
 
+# 标记区块安全补丁：只修改标记包裹的内容，保留用户其余内容
+# 用法：safe_patch_markers <源文件> <目标文件> [标记名称]
+safe_patch_markers() {
+    local src="$1"
+    local dst="$2"
+    local marker_name="${3:-dev-skills-kit}"
+    local marker_begin="<!-- ${marker_name}: begin -->"
+    local marker_end="<!-- ${marker_name}: end -->"
+
+    mkdir -p "$(dirname "$dst")"
+
+    if [ ! -f "$dst" ]; then
+        # 首次安装：创建文件，用标记包裹
+        {
+            echo "$marker_begin"
+            cat "$src"
+            echo "$marker_end"
+        } > "$dst"
+        return 0
+    fi
+
+    if grep -q "$marker_begin" "$dst"; then
+        # 已有标记：替换区块内容
+        local tmpfile
+        tmpfile="$(mktemp)"
+        awk -v marker_begin="$marker_begin" \
+            -v marker_end="$marker_end" \
+            -v newcontent="$src" \
+            '
+            $0 == marker_begin {
+                print marker_begin
+                while ((getline line < newcontent) > 0) print line
+                close(newcontent)
+                skip = 1
+                next
+            }
+            $0 == marker_end {
+                print marker_end
+                skip = 0
+                next
+            }
+            !skip { print }
+            ' "$dst" > "$tmpfile"
+        mv "$tmpfile" "$dst"
+    else
+        # 无标记：追加到末尾（用标记包裹）
+        {
+            echo ""
+            echo "$marker_begin"
+            cat "$src"
+            echo "$marker_end"
+        } >> "$dst"
+    fi
+}
+
+# JSON 深合并：将源 JSON 的键值合并到目标 JSON，不覆盖用户已有键值
+# 对于数组类型的值，合并去重；对于对象类型，递归合并
+# 用法：safe_merge_json <源JSON文件> <目标JSON文件>
+safe_merge_json() {
+    local src="$1"
+    local dst="$2"
+
+    mkdir -p "$(dirname "$dst")"
+
+    if [ ! -f "$dst" ]; then
+        cp "$src" "$dst"
+        return 0
+    fi
+
+    # 使用 python3 进行深度合并
+    local tmpfile
+    tmpfile="$(mktemp)"
+    if python3 -c "
+import json, sys
+
+def deep_merge(base, override):
+    '''将 override 合并到 base，base 的已有值优先保留'''
+    result = dict(base)
+    for key, val in override.items():
+        if key not in result:
+            result[key] = val
+        elif isinstance(result[key], dict) and isinstance(val, dict):
+            result[key] = deep_merge(result[key], val)
+        elif isinstance(result[key], list) and isinstance(val, list):
+            # 数组合并去重
+            for item in val:
+                if item not in result[key]:
+                    result[key].append(item)
+        # else: 保留用户的值
+    return result
+
+with open(sys.argv[1]) as f:
+    user_data = json.load(f)
+with open(sys.argv[2]) as f:
+    kit_data = json.load(f)
+
+merged = deep_merge(user_data, kit_data)
+with open(sys.argv[3], 'w') as f:
+    json.dump(merged, f, indent=4, ensure_ascii=False)
+    f.write('\n')
+" "$dst" "$src" "$tmpfile" 2>/dev/null; then
+        mv "$tmpfile" "$dst"
+    else
+        # python3 不可用或解析失败，回退到 safe_cp
+        rm -f "$tmpfile"
+        echo "   ⚠️  JSON 合并失败，回退到安全复制"
+        safe_cp "$src" "$dst" "$(basename "$dst")"
+    fi
+}
+
 # ── 自动拉取上游源码（如果 github-source/ 不存在）──────
 if [ ! -d "$SOURCE_DIR" ]; then
     echo "📡 未检测到 github-source/，正在自动拉取上游源码..."
@@ -164,7 +275,7 @@ declare -A SKILLS=(
     ["using-superpowers"]="superpowers/skills/using-superpowers"
     # everything-claude-code 核心
     ["continuous-learning-v2"]="everything-claude-code/skills/continuous-learning-v2"
-    # 技术栈（按需启用，默认全部安装，在 AGENTS.md 中按需取消注释）
+    # 技术栈（按需启用，默认全部安装）
     ["python-patterns"]="everything-claude-code/skills/python-patterns"
     ["python-testing"]="everything-claude-code/skills/python-testing"
     ["golang-patterns"]="everything-claude-code/skills/golang-patterns"
@@ -235,110 +346,31 @@ safe_cp_dir "$SCRIPT_DIR/.agent/templates" "$TARGET/.agent/templates" ".agent/te
 echo "   ✅ 完成"
 echo ""
 
-# ── 构建 AGENTS 配置文件（到临时目录，避免修改仓库文件）────
-BUILD_TMPDIR="$(mktemp -d)"
-trap 'rm -rf "$BUILD_TMPDIR"' EXIT
+# ── 复制各大平台 /go 命令入口 ────────────────────────────
+echo "📁 复制各大平台配置 ..."
 
-if [ -x "$SCRIPT_DIR/.agent/builder/build.sh" ]; then
-    echo "🔨 构建最新版本的 AGENTS 配置文件..."
-    bash "$SCRIPT_DIR/.agent/builder/build.sh" "$BUILD_TMPDIR" > /dev/null
-    echo "   ✅ 完成"
-    echo ""
-fi
+# Cursor commands（Cursor 通过 .cursor/commands/ 识别 slash commands）
+safe_cp_dir "$SCRIPT_DIR/.agent/workflows" "$TARGET/.cursor/commands" ".cursor/commands"
 
-# 构建输出目录存在时优先使用构建后的最新文件，否则回退到仓库已有文件
-agents_src() {
-    local filename="$1"
-    if [ -f "$BUILD_TMPDIR/$filename" ]; then
-        echo "$BUILD_TMPDIR/$filename"
-    else
-        echo "$SCRIPT_DIR/$filename"
-    fi
-}
-
-echo "📁 复制各大平台专属配置及拦截规则 ..."
-
-# Cursor 拦截规则
-safe_cp_dir "$SCRIPT_DIR/.cursor/rules" "$TARGET/.cursor/rules" ".cursor/rules"
-
-# Codex 全局 Slash Commands (Codex 仅识别全局 Prompts)
+# Codex 全局 Slash Commands（Codex 仅识别全局 Prompts）
 CODEX_GLOBAL_PROMPTS="${CODEX_HOME:-$HOME/.codex}/prompts"
 safe_cp_dir "$SCRIPT_DIR/.agent/workflows" "$CODEX_GLOBAL_PROMPTS" "\$HOME/.codex/prompts"
-
-# Codex 项目级拦截配置
-safe_cp_dir "$SCRIPT_DIR/.codex" "$TARGET/.codex" ".codex"
 
 # Claude commands
 safe_cp_dir "$SCRIPT_DIR/.agent/workflows" "$TARGET/.claude/commands" ".claude/commands"
 
-# OpenCode 拦截配置
-safe_cp_dir "$SCRIPT_DIR/.opencode" "$TARGET/.opencode" ".opencode"
+# OpenCode commands
+safe_cp_dir "$SCRIPT_DIR/.agent/workflows" "$TARGET/.opencode/commands" ".opencode/commands"
 
-# Gemini CLI commands + settings（让 Gemini CLI 识别 AGENTS.md + 注册 slash commands）
+# Gemini CLI commands
 safe_cp_dir "$SCRIPT_DIR/.gemini/commands" "$TARGET/.gemini/commands" ".gemini/commands"
-safe_cp "$SCRIPT_DIR/.gemini/settings.json" "$TARGET/.gemini/settings.json" ".gemini/settings.json"
-
-# 各平台专属高级配置（从构建输出目录读取）
-safe_cp "$(agents_src AGENTS.cursor.md)" "$TARGET/.agent/AGENTS.cursor.md" ".agent/AGENTS.cursor.md"
-safe_cp "$(agents_src AGENTS.codex.md)" "$TARGET/.agent/AGENTS.codex.md" ".agent/AGENTS.codex.md"
-safe_cp "$(agents_src AGENTS.opencode.md)" "$TARGET/.agent/AGENTS.opencode.md" ".agent/AGENTS.opencode.md"
+# Gemini settings.json 是共享文件，用 JSON 深合并保护用户设置
+safe_merge_json "$SCRIPT_DIR/.gemini/settings.json" "$TARGET/.gemini/settings.json"
+echo "   ✅ .gemini/settings.json（JSON 合并）"
 
 echo "   ✅ 完成"
 echo ""
 
-# ── 追加根目录 AGENTS.md（Antigravity 降级版）─────────────────────
-TARGET_AGENTS="$TARGET/AGENTS.md"
-MARKER_BEGIN="<!-- dev-skills-kit: begin -->"
-MARKER_END="<!-- dev-skills-kit: end -->"
-AGENTS_SRC="$(agents_src AGENTS.md)"
-
-echo "📄 处理根目录 AGENTS.md (Antigravity 版) ..."
-if [ ! -f "$TARGET_AGENTS" ]; then
-    # 首次安装：创建文件，用标记包裹以便后续更新
-    {
-        echo "$MARKER_BEGIN"
-        cat "$AGENTS_SRC"
-        echo "$MARKER_END"
-    } > "$TARGET_AGENTS"
-    echo "   ✅ 已创建 AGENTS.md"
-else
-    if grep -q "$MARKER_BEGIN" "$TARGET_AGENTS"; then
-        # 已有标记：替换区块内容为最新版本
-        # 创建临时文件以安全替换
-        TMPFILE="$(mktemp)"
-        # 使用 awk 进行精确的区块替换
-        awk -v marker_begin="$MARKER_BEGIN" \
-            -v marker_end="$MARKER_END" \
-            -v newcontent="$AGENTS_SRC" \
-            '
-            $0 == marker_begin { 
-                print marker_begin
-                while ((getline line < newcontent) > 0) print line
-                close(newcontent)
-                skip = 1
-                next
-            }
-            $0 == marker_end {
-                print marker_end
-                skip = 0
-                next
-            }
-            !skip { print }
-            ' "$TARGET_AGENTS" > "$TMPFILE"
-        mv "$TMPFILE" "$TARGET_AGENTS"
-        echo "   ✅ 已更新 AGENTS.md 中的 dev-skills-kit 配置区块"
-    else
-        # 无标记：追加到末尾（用标记包裹）
-        {
-            echo ""
-            echo "$MARKER_BEGIN"
-            cat "$AGENTS_SRC"
-            echo "$MARKER_END"
-        } >> "$TARGET_AGENTS"
-        echo "   ✅ 已追加到现有 AGENTS.md"
-    fi
-fi
-echo ""
 
 
 
@@ -392,9 +424,7 @@ GITIGNORE_ENTRIES=(
     ".opencode/|# OpenCode 拦截配置（由 install.sh 安装，勿提交）"
     ".openspec/|# OpenSpec 运行时缓存（openspec init 生成，勿提交）"
     ".gemini/|# Gemini CLI 命令与运行时缓存（由 install.sh 安装，勿提交）"
-    ".worktrees/|# Git Worktree 并发工作区缓存（由 /concurrency 生成，勿提交）"
-    # ── AI 根目录配置文件（install.sh 生成，个人环境）──
-    "AGENTS.md|# AI Agent 主配置（由 install.sh 生成，勿提交）"
+    "git-worktrees/|# Git Worktree 并发工作区缓存（由 /concurrency 生成，勿提交）"
     # ── AI 任务临时文件（运行时生成）──
     "task_plan.md|# AI 任务规划草稿（planning-with-files skill 生成，任务结束后可删除）"
     "findings.md|# AI 调研发现草稿（process.md 附属，任务结束后可删除）"
@@ -441,8 +471,7 @@ echo ""
 echo "✅ 安装完成！"
 echo ""
 echo "📝 接下来："
-echo "   1. 打开 $TARGET/AGENTS.md"
-echo "   2. 在第 3.4 节取消注释你项目所需的技术栈 Skills"
+echo "   在 AI 对话中发送 /go 即可激活规则并进入工作状态"
 echo ""
 echo "🔄 更新上游 Skills（在 dev-skills-kit 仓库执行）："
 echo "   cd $SCRIPT_DIR && ./update-sources.sh && ./install.sh $TARGET"

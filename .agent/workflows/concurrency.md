@@ -32,14 +32,14 @@ $ARGUMENTS
 用户确认后，对分析得到的**可并发变更**，依次执行以下建立工作区动作。使用 `run_command` 执行相关终端命令。
 
 1. **环境准备**：
-   - 确认并在项目根目录创建 `.worktrees/` 目录存放各并发工作区（如果不存在则 `mkdir -p .worktrees`）。
-   - 需要确保 `.worktrees/` 已经被添加到当前项目根目录的 `.gitignore` 中以防代码仓库污染（若未忽略则帮助追加）。
+   - 确认并在项目根目录创建 `git-worktrees/` 目录存放各并发工作区（如果不存在则 `mkdir -p git-worktrees`）。
+   - 需要确保 `git-worktrees/` 已经被添加到当前项目根目录的 `.gitignore` 中以防代码仓库污染（若未忽略则帮助追加）。
 
 2. **核心分支创建与分离绑定**：
    针对每一个可并发变更（设其名称为 `<change-name>`），执行：
    - 基于当前开发基准分支（通常为 `main` 或当前所在的开发主干），分配新分支。
    - 分支命名规范规定为：`concurrency/<change-name>`
-   - 执行 `git worktree add .worktrees/concurrency-<change-name> -b concurrency/<change-name>`
+   - 执行 `git worktree add git-worktrees/concurrency-<change-name> -b concurrency/<change-name>`
    *(注意：如果关联分支已存在，可以省略 `-b` 等根据实际执行返回状态变通。)*
 
 3. **同步 AI 工具与运行环境依赖**（重要）：
@@ -51,14 +51,14 @@ $ARGUMENTS
    建议使用类似下方的命令序列（针对每个 `<change-name>`）：
    ```bash
    # 1) 复制 AI 工具配置（不含 openspec）
-   cp -r .agent .cursor .opencode .gemini .claude .codex AGENTS.md .worktrees/concurrency-<change-name>/ 2>/dev/null || true
+   cp -r .agent .cursor .opencode .gemini .claude .codex AGENTS.md git-worktrees/concurrency-<change-name>/ 2>/dev/null || true
 
    # 2) 复制 openspec 基础结构（specs、配置等），但排除 changes/ 目录
-   rsync -a --exclude='changes/' openspec/ .worktrees/concurrency-<change-name>/openspec/ 2>/dev/null || true
+   rsync -a --exclude='changes/' openspec/ git-worktrees/concurrency-<change-name>/openspec/ 2>/dev/null || true
 
    # 3) 仅复制当前变更对应的 change 目录
-   mkdir -p .worktrees/concurrency-<change-name>/openspec/changes/
-   cp -r openspec/changes/<change-name> .worktrees/concurrency-<change-name>/openspec/changes/ 2>/dev/null || true
+   mkdir -p git-worktrees/concurrency-<change-name>/openspec/changes/
+   cp -r openspec/changes/<change-name> git-worktrees/concurrency-<change-name>/openspec/changes/ 2>/dev/null || true
    ```
 
 ### 4. 清理主目录中已分配的变更
@@ -84,7 +84,7 @@ mv openspec/changes/<change-name> openspec/changes/.dispatched/ 2>/dev/null || t
 ✅ **并发工作区已创建完成**
 
 你可以同时打开多个编辑器在各自独立的目录开发：
-- `cd .worktrees/concurrency-<change-name>`
+- `cd git-worktrees/concurrency-<change-name>`
 
 > 已分配的变更已从主目录移至 `openspec/changes/.dispatched/`，主目录不会再误触这些任务。
 
@@ -92,7 +92,7 @@ mv openspec/changes/<change-name> openspec/changes/.dispatched/ 2>/dev/null || t
 1. 分别在各个工作树下开展 TDD、修改代码等工作。
 2. 独立针对各自的 `concurrency/<change-name>` 分支进行 `git commit`。
 3. 这些并行特性实现完成后，**用户请手动**从主根目录将特性分支合并回主线。
-4. 合并结束不再需要时，可以通过在主目录执行 `git worktree remove .worktrees/concurrency-<change-name>` 和 `git branch -d concurrency/<change-name>` 来安全地进行销毁清理。
+4. 合并结束不再需要时，可以通过在主目录执行 `git worktree remove git-worktrees/concurrency-<change-name>` 和 `git branch -d concurrency/<change-name>` 来安全地进行销毁清理。
 5. 清理 `.dispatched/`：合并完成后删除 `openspec/changes/.dispatched/<change-name>`。
 ```
 

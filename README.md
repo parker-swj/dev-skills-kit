@@ -50,13 +50,13 @@ cd <your-local-path>
 
 ![按需加载架构](docs/images/04-on-demand.svg)
 
-AGENTS.md 只定义调度逻辑和分级规则，具体的 Skill 指导以独立文件存在。AI 根据任务复杂度**按需读取**，既节约 Token，又减少长会话中的规则遗忘。
+`/go` workflow 定义调度逻辑和分级规则，具体的 Skill 指导以独立 SKILL.md 文件存在。AI 根据任务复杂度**按需读取**，既节约 Token，又减少长会话中的规则遗忘。
 
 ### 多平台构建与分发
 
 ![多平台构建与分发](docs/images/05-build-distribute.svg)
 
-`build.sh` 将共享组件和平台特有组件拼装为各平台专属的 AGENTS 配置文件，`install.sh` 负责分发到目标项目。
+`install.sh` 将 Skills、Workflows、Templates 和各平台轻量拦截配置分发到目标项目，用户发送 `/go` 即可激活完整规则。
 
 ### 防遗忘与中断恢复
 
