@@ -1,38 +1,47 @@
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4A90D9', 'primaryTextColor': '#fff', 'lineColor': '#5C6370'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4A90D9', 'primaryTextColor': '#fff', 'lineColor': '#5C6370', 'actorTextColor': '#282C34', 'actorBkg': '#528BFF', 'actorBorder': '#3A7BC8', 'signalColor': '#282C34', 'signalTextColor': '#282C34', 'noteBkgColor': '#E5C07B', 'noteTextColor': '#282C34', 'activationBkgColor': '#61AFEF', 'activationBorderColor': '#528BFF', 'sequenceNumberColor': '#fff'}}}%%
 
 sequenceDiagram
-    participant U as 👤 用户
-    participant AI as 🤖 AI Agent
-    participant PM as 📄 process.md
-    participant SK as 📂 SKILL.md
+    participant U as User
+    participant AI as AI Agent
+    participant PM as process.md
+    participant SK as SKILL.md
 
-    Note over U,SK: 首次启动 或 新任务
+    rect rgba(229, 192, 123, 0.15)
+    Note over U,SK: Phase 1 - Start new task
     U->>AI: /go
-    AI->>PM: 检查 process.md 存在？
-    PM-->>AI: ❌ 不存在
-    AI-->>U: 等待新需求描述
+    AI->>PM: check existence
+    PM-->>AI: not found
+    AI-->>U: waiting for task description
+    U->>AI: describe new task
+    AI->>AI: assess complexity level
+    AI->>PM: create from template, Step1 = in-progress
+    AI->>SK: view_file to load needed skills
+    end
 
-    U->>AI: 描述新需求
-    AI->>AI: 评估复杂度等级
-    AI->>PM: 从模板创建 process.md<br/>Step 1 → 🔄
-    AI->>SK: view_file 读取需要的 SKILL.md
+    rect rgba(97, 175, 239, 0.15)
+    Note over U,SK: Phase 2 - Execution
+    AI->>PM: Step1 = done, Step2 = in-progress
+    end
 
-    Note over U,SK: 执行中...
-    AI->>PM: Step 1 → ✅<br/>Step 2 → 🔄
+    rect rgba(224, 108, 117, 0.15)
+    Note over U,SK: Phase 3 - Interruption (session end / crash / manual switch)
+    end
 
-    Note over U,SK: ⚡ 中断（会话结束 / 崩溃 / 手动切换）
-
-    Note over U,SK: 恢复
+    rect rgba(152, 195, 121, 0.15)
+    Note over U,SK: Phase 4 - Recovery
     U->>AI: /go
-    AI->>PM: 检查 process.md 存在？
-    PM-->>AI: ✅ 存在，Step 2 = 🔄
-    AI->>PM: 读取 🔄 步骤的关键记录
-    AI->>AI: 读取 task_plan.md / findings.md
-    AI-->>U: 📍 已恢复到 Step 2<br/>继续执行...
+    AI->>PM: check existence
+    PM-->>AI: found, Step2 = in-progress
+    AI->>PM: read key records of in-progress step
+    AI->>AI: read task_plan.md and findings.md
+    AI-->>U: restored to Step2, continue execution
+    end
 
-    Note over U,SK: 任务完成
-    AI->>PM: 最后一步 → ✅
-    AI->>AI: OpenSpec 归档检测
-    AI->>AI: 移入 .archive/tasks/
-    AI->>AI: 执行 auto-learning
-    AI-->>U: ✅ 任务已完成并归档
+    rect rgba(198, 120, 221, 0.15)
+    Note over U,SK: Phase 5 - Completion and Archive
+    AI->>PM: last step = done
+    AI->>AI: OpenSpec archive detection
+    AI->>AI: move to .archive/tasks/
+    AI->>AI: execute auto-learning
+    AI-->>U: task completed and archived
+    end
