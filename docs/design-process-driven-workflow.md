@@ -268,7 +268,18 @@ progress.md           →  记录 "做到哪了"（状态笔记）
 - 状态: ⬜ 未开始
 - **关键记录**:
   - openspec/ 目录是否存在: [是/否]
-  - 选择路径: [Path A: OpenSpec / Path B: writing-plans]
+  - 选择路径: [Path A / Path B]（⚠️ 不是自由选择，必须按以下规则判定）
+- **⛔ 强制判定规则（不可绕过）**:
+  - **检测方法**: 检查**目标项目根目录**是否存在 `openspec/` 目录
+  - **[是] → 必须走 Path A: OpenSpec**
+    - `openspec/` 存在即代表项目已接入 OpenSpec 流程
+    - 变更目录不存在是正常的——Step 4 会用 `/opsx:new` 创建它
+    - ⛔ **严禁以任何理由选择 Path B**，包括但不限于：
+      - ❌ "openspec 未针对本次改动配置变更目录"
+      - ❌ "已有 task_plan.md 作为设计材料"
+      - ❌ "变更范围较小不需要 OpenSpec"
+  - **[否] → 走 Path B: writing-plans**
+    - 仅当 `openspec/` 目录完全不存在时才允许 Path B
 
 ## Step 4: 设计固化
 - 状态: ⬜ 未开始
